@@ -2,6 +2,7 @@
   import { station } from './station.svelte.js';
   import SnrChart from './SnrChart.svelte';
   import LevelMeter from './LevelMeter.svelte';
+  import Constellation from './Constellation.svelte';
 
   const l = $derived(station.link);
   const recent = $derived(station.bursts.slice(-8).reverse());
@@ -29,6 +30,11 @@
   <div class="card">
     <h2>SNR of received bursts</h2>
     <SnrChart />
+  </div>
+
+  <div class="card">
+    <h2>Constellation (last burst)</h2>
+    <Constellation />
   </div>
 
   <div class="card">

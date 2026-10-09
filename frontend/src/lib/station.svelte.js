@@ -14,7 +14,8 @@ export const station = $state({
   level: null,            // the latest 'level' event (receive rms/peak dBFS)
   transmitting: false,    // the radio is keyed
   receiving: false,       // a burst was decoded in the last couple of seconds
-  constellation: null,    // the latest received burst's symbol points
+  constellation: null,    // the latest received burst's symbol points (+ that burst's SNR)
+  prevConstellation: null, // the one before it, drawn fainter
   error: null,            // the last action's error, for the page to show
 });
 
@@ -42,6 +43,8 @@ function handle(e) {
       for (const m of e.messages) handle(m);
       station.bursts = e.bursts.slice(-MAX_BURSTS);
       station.logs = e.logs.map((l) => l.text).slice(-MAX_LOGS);
+      station.constellation = station.prevConstellation = null;
+      for (const c of e.constellations || []) handle(c);
       break;
     case 'link':
       station.link = e;
@@ -62,9 +65,13 @@ function handle(e) {
       clearTimeout(receivingTimer);
       receivingTimer = setTimeout(() => (station.receiving = false), 2000);
       break;
-    case 'constellation':
-      station.constellation = e;
+    case 'constellation': {
+      const burst = station.bursts[station.bursts.length - 1];
+      station.prevConstellation = station.constellation;
+      station.constellation = { ...e, snr_db: burst ? burst.snr_db : null,
+                                status: burst ? burst.status : null };
       break;
+    }
     case 'level':
       station.level = e;
       break;

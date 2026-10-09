@@ -3,6 +3,7 @@
   import Chat from './lib/Chat.svelte';
   import Link from './lib/Link.svelte';
   import Log from './lib/Log.svelte';
+  import Settings from './lib/Settings.svelte';
 
   let tab = $state('chat');   // narrow screens show one panel at a time
   const l = $derived(station.link);
@@ -35,7 +36,7 @@
 </header>
 
 <nav>
-  {#each [['chat', 'Chat'], ['link', 'Link'], ['log', 'Log']] as [key, label]}
+  {#each [['chat', 'Chat'], ['link', 'Link'], ['settings', 'Settings'], ['log', 'Log']] as [key, label]}
     <button class:active={tab === key} onclick={() => (tab = key)}>{label}</button>
   {/each}
 </nav>
@@ -43,6 +44,7 @@
 <main>
   <section class="chat" class:shown={tab === 'chat'}><Chat /></section>
   <section class="link" class:shown={tab === 'link'}><Link /></section>
+  <section class="settings" class:shown={tab === 'settings'}><Settings /></section>
   <section class="log" class:shown={tab === 'log'}><Log /></section>
 </main>
 
@@ -69,6 +71,6 @@
     nav { display: none; }
     main { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
     section.chat, section.link { display: block; }
-    section.log { display: block; grid-column: 1 / -1; }
+    section.settings, section.log { display: block; grid-column: 1 / -1; }
   }
 </style>

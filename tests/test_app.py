@@ -56,7 +56,10 @@ class HubTests(unittest.TestCase):
         hub.publish({'type': 'message_rx', 'src': 'W1AW', 'text': 'hi'})
         hub.publish({'type': 'burst_rx', 'snr_db': float('-inf')})
         hub.publish({'type': 'constellation', 'points': [[0, 1]]})
+        hub.publish({'type': 'constellation', 'points': [[1, 0]]})
+        hub.publish({'type': 'constellation', 'points': [[0, -1]]})
         snap = hub.snapshot()
+        self.assertEqual([c['points'] for c in snap['constellations']], [[[1, 0]], [[0, -1]]])
         self.assertEqual(snap['link']['mode_id'], 2)
         self.assertEqual([m['text'] for m in snap['messages']], ['hi'])
         self.assertIsNone(snap['bursts'][0]['snr_db'])
@@ -129,6 +132,12 @@ class WebStationTests(unittest.IsolatedAsyncioTestCase):
             self.assertIn('nonsense', bad.json()['detail'])
             self.assertEqual(good.status_code, 200)
             self.assertEqual(good.json()['max_tx_s'], 20.0)
+            async with httpx.AsyncClient() as client:
+                bad_call = await client.patch(self.url('K0MDT', '/api/settings'), json={'dst_id': 'K0#DT'})
+                rename = await client.patch(self.url('K0MDT', '/api/settings'), json={'dst_id': 'w1aw-2'})
+            self.assertEqual(bad_call.status_code, 400)
+            self.assertIn("'#' is not allowed", bad_call.json()['detail'])
+            self.assertEqual(rename.json()['dst_id'], 'W1AW-2')
             link = await next_event(ws, 'link', where=lambda e: e['max_tx_s'] == 20.0)
             self.assertEqual(link['station_id'], 'K0MDT')
 

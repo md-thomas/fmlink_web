@@ -5,8 +5,8 @@ Events are the dicts ota_station.Station emits (on_event). The hub only
 makes them JSON-safe (non-finite floats become None) and keeps:
   - the latest 'link' and 'level' event,
   - the conversation: message_tx, delivery, message_rx (last 500),
-  - received bursts (last 300) and log lines (last 500).
-Constellation points aren't kept, only passed on.
+  - received bursts (last 300) and log lines (last 500),
+  - the last two bursts' constellation points.
 """
 import asyncio
 import math
@@ -36,6 +36,7 @@ class EventHub:
         self.messages = deque(maxlen=500)
         self.bursts = deque(maxlen=300)
         self.logs = deque(maxlen=500)
+        self.constellations = deque(maxlen=2)
 
     def publish(self, event):
         """Called by the station (on its event loop) for every event."""
@@ -51,6 +52,8 @@ class EventHub:
             self.bursts.append(event)
         elif kind == 'log':
             self.logs.append(event)
+        elif kind == 'constellation':
+            self.constellations.append(event)
         for queue in list(self._subscribers):
             if queue.full():      # a page that stopped reading: drop its oldest
                 queue.get_nowait()
@@ -60,7 +63,8 @@ class EventHub:
         """What a newly connected page needs to draw the current state."""
         return json_safe({'type': 'snapshot', 'link': link_state or self.link,
                           'level': self.level, 'messages': list(self.messages),
-                          'bursts': list(self.bursts), 'logs': list(self.logs)})
+                          'bursts': list(self.bursts), 'logs': list(self.logs),
+                          'constellations': list(self.constellations)})
 
     def subscribe(self):
         queue = asyncio.Queue(maxsize=self._queue_size)
