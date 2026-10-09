@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "open_wave_web"
+version = "0.1.0"
+description = "Web interface for an OpenWave station (FastAPI backend + Svelte frontend)"
+requires-python = ">=3.11"
+dependencies = ["fastapi", "uvicorn[standard]", "numpy"]
+
+[project.optional-dependencies]
+test = ["httpx"]
+
+[project.scripts]
+openwave-web = "openwave_web.main:main"
+
+[tool.setuptools]
+packages = ["openwave_web"]
+
+[tool.setuptools.package-data]
+openwave_web = ["static/*"]
