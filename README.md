@@ -5,10 +5,12 @@ peer station, watch the link live, and change settings while it runs. It
 runs on the station computer and is opened from any browser on the network,
 a phone included. Design and plan: [SCOPE.md](SCOPE.md).
 
-**Status (2026-10-09):** the backend works (step 2 of the plan). The page
-it serves is a simple placeholder - chat, link line, receive level, TX
-indicator, last bursts, log - until the Svelte frontend (step 3) replaces
-it.
+**Status (2026-10-09):** backend done; the Svelte frontend has its first
+screens - **Chat** (delivery status per message, segment progress),
+**Link** (mode, FEC, batching, peer; an SNR chart of received bursts with
+the current mode's limit; the radio's receive level; recent bursts) and
+**Log**, with a TX/RX indicator, a phone layout and dark mode. Settings and
+Radio screens come next.
 
 ## Setup
 
@@ -51,6 +53,22 @@ every option.
 **Anyone on the network can open the page and transmit** (there's no
 password, by choice). `--host 127.0.0.1` limits it to this computer; reach
 it from elsewhere with an ssh tunnel (`ssh -L 8080:localhost:8080 station`).
+
+## Frontend
+
+`frontend/` is a Svelte 5 + Vite app. The built files (`frontend/dist/`)
+are committed, so a station needs only `git pull`, no Node. To work on it
+(Node 20+):
+
+```bash
+cd frontend
+npm install
+npm run dev     # hot reload at http://localhost:5173, /api forwarded to a station on :8080
+npm run build   # rebuild dist/ - commit it with the source change
+```
+
+Without `frontend/dist/` the server falls back to a minimal placeholder
+page (`openwave_web/static/index.html`).
 
 ## API
 

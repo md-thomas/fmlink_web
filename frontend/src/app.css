@@ -1,0 +1,75 @@
+/* Tokens: light by default, dark from the OS setting or data-theme. */
+:root {
+  color-scheme: light;
+  --page: #f9f9f7;
+  --surface: #fcfcfb;
+  --ink: #0b0b0b;
+  --ink-2: #52514e;
+  --muted: #898781;
+  --grid: #e1e0d9;
+  --axis: #c3c2b7;
+  --ring: rgba(11, 11, 11, 0.1);
+  --series-1: #2a78d6;
+  --accent: #2a78d6;
+  --me: #2a78d61a;
+  --good: #0ca30c;
+  --good-text: #006300;
+  --warning: #fab219;
+  --critical: #d03b3b;
+  --zone: #0ca30c22;
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 15px;
+  line-height: 1.4;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --page: #0d0d0d;
+    --surface: #1a1a19;
+    --ink: #ffffff;
+    --ink-2: #c3c2b7;
+    --grid: #2c2c2a;
+    --axis: #383835;
+    --ring: rgba(255, 255, 255, 0.1);
+    --series-1: #3987e5;
+    --accent: #3987e5;
+    --me: #3987e52a;
+    --good-text: #0ca30c;
+    --zone: #0ca30c33;
+  }
+}
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --page: #0d0d0d;
+  --surface: #1a1a19;
+  --ink: #ffffff;
+  --ink-2: #c3c2b7;
+  --grid: #2c2c2a;
+  --axis: #383835;
+  --ring: rgba(255, 255, 255, 0.1);
+  --series-1: #3987e5;
+  --accent: #3987e5;
+  --me: #3987e52a;
+  --good-text: #0ca30c;
+  --zone: #0ca30c33;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--page); color: var(--ink); }
+button, input, select { font: inherit; color: inherit; }
+button {
+  background: var(--surface); border: 1px solid var(--ring); border-radius: 6px;
+  padding: 6px 12px; cursor: pointer;
+}
+button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+button:disabled { opacity: 0.5; cursor: default; }
+input, select {
+  background: var(--surface); border: 1px solid var(--ring); border-radius: 6px; padding: 6px 8px;
+}
+.card {
+  background: var(--surface); border: 1px solid var(--ring); border-radius: 8px; padding: 12px;
+}
+.muted { color: var(--muted); }
+.secondary { color: var(--ink-2); }
+h2 { font-size: 0.95rem; margin: 0 0 8px; color: var(--ink-2); font-weight: 600; }
+.num { font-variant-numeric: tabular-nums; }
