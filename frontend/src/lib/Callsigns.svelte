@@ -1,8 +1,9 @@
 <script>
-  // Settings changed while the station runs (PATCH /api/settings). For
-  // now: the two callsigns. Changing either starts a fresh session - the
+  // My callsign and the destination's, changed while the station runs
+  // (PATCH /api/settings). Changing either starts a fresh session - the
   // next message negotiates the mode with the (new) peer.
   import { station, updateSettings } from './station.svelte.js';
+  import Panel from './Panel.svelte';
 
   let mine = $state('');
   let theirs = $state('');
@@ -48,8 +49,8 @@
   }
 </script>
 
-<div class="card">
-  <h2>Callsigns</h2>
+<Panel id="callsigns" title="Callsigns">
+{#snippet children()}
   <form onsubmit={apply} oninput={() => (edited = true)}>
     <label>
       <span>My callsign</span>
@@ -61,23 +62,20 @@
       <input bind:value={theirs} autocomplete="off" spellcheck="false" maxlength="9"
              placeholder="e.g. K0MDT-2" disabled={!station.online} />
     </label>
-    <div class="buttons">
-      <button class="primary" disabled={!station.online || busy || !changed}>Apply</button>
-      {#if edited}<button type="button" onclick={cancel}>Cancel</button>{/if}
-    </div>
+    <button class="primary" disabled={!station.online || busy || !changed}>Apply</button>
+    {#if edited}<button type="button" onclick={cancel}>Cancel</button>{/if}
   </form>
   {#if result}<p class={result.ok ? 'good' : 'bad'}>{result.text}</p>{/if}
-  <p class="muted note">Up to 9 characters: letters, digits, / - . (an SSID like -1 included).
-    Changing either one starts a fresh session with the destination.</p>
-</div>
+{/snippet}
+</Panel>
 
 <style>
-  form { display: grid; gap: 10px; max-width: 420px; }
-  label { display: grid; gap: 4px; }
-  label span { color: var(--ink-2); font-size: 0.9rem; }
-  input { text-transform: uppercase; }
-  .buttons { display: flex; gap: 8px; }
+  /* Title on the first row; both entries and the buttons on the second. */
+  form { padding: 2px; display: flex; flex-wrap: wrap; align-items: flex-end; gap: 8px 12px; }
+  label { display: grid; gap: 4px; flex: 1 1 0; min-width: 90px; max-width: 220px; }
+  label span { color: var(--ink-2); font-size: 0.85rem; }
+  input { text-transform: uppercase; width: 100%; }
   .good { color: var(--good-text); }
   .bad { color: var(--critical); }
-  .note { font-size: 0.85rem; margin-bottom: 0; }
+  p { margin: 8px 0 0; font-size: 0.9rem; }
 </style>

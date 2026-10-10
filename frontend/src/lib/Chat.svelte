@@ -1,5 +1,6 @@
 <script>
   import { station, send } from './station.svelte.js';
+  import Panel from './Panel.svelte';
 
   let text = $state('');
   let busy = $state(false);
@@ -35,8 +36,9 @@
   });
 </script>
 
-<div class="card chat">
-  <h2>Chat{station.link ? ` with ${station.link.dst_id}` : ''}</h2>
+<Panel id="chat" title={`Chat${station.link ? ` with ${station.link.dst_id}` : ''}`}
+       height="min(70vh, 640px)" fill>
+{#snippet children()}
   <div class="list" bind:this={list}>
     {#each station.messages as m}
       <div class="msg" class:me={m.kind === 'tx'}>
@@ -61,11 +63,11 @@
            disabled={!station.online} />
     <button class="primary" disabled={!station.online || busy || !text.trim()}>Send</button>
   </form>
-</div>
+{/snippet}
+</Panel>
 
 <style>
-  .chat { display: flex; flex-direction: column; height: min(70vh, 640px); }
-  .list { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 4px 2px; }
+  .list { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 4px 2px; }
   .msg { max-width: 85%; }
   .msg.me { align-self: flex-end; text-align: right; }
   .bubble {

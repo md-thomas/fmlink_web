@@ -10,9 +10,10 @@
     qpsk: [[-0.707, -0.707], [-0.707, 0.707], [0.707, -0.707], [0.707, 0.707]],
     '16qam': [-0.949, -0.316, 0.316, 0.949].flatMap((a) => [-0.949, -0.316, 0.316, 0.949].map((b) => [a, b])),
   };
+  let { height = null } = $props();   // the panel's height once resized
   const R = 1.5;   // plotted range: -1.5 .. +1.5 on both axes; outliers pinned to the edge
   let size = $state(300);
-  const side = $derived(Math.min(size, 340));
+  const side = $derived(Math.max(120, Math.min(size, height ? height - 34 : 340)));
   const c = $derived(station.constellation);
   const prev = $derived(station.prevConstellation);
   const sx = (v) => ((Math.max(-R, Math.min(R, v)) + R) / (2 * R)) * side;
@@ -47,7 +48,7 @@
       {c.modulation.toUpperCase()} · {c.points.length} symbols
       {#if c.snr_db !== null && c.snr_db !== undefined} · SNR {c.snr_db.toFixed(1)} dB{/if}
       {#if c.status && c.status !== 'ok'}<span class="bad"> · ✕ {c.status}</span>{/if}
-      <span class="muted"> · + = ideal points; faint = the burst before</span>
+      <span class="muted"> · + ideal · faint = burst before</span>
     </div>
   {/if}
 </div>

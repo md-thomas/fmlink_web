@@ -3,9 +3,39 @@
   import Chat from './lib/Chat.svelte';
   import Link from './lib/Link.svelte';
   import Log from './lib/Log.svelte';
-  import Settings from './lib/Settings.svelte';
+  import Callsigns from './lib/Callsigns.svelte';
+  import { load, save } from './lib/storage.js';
 
   let tab = $state('chat');   // narrow screens show one panel at a time
+
+  // Wide screens: the share of the width the left column (chat, log) gets;
+  // drag the divider to change it, double-click to reset.
+  let split = $state(load('split', 0.5));
+  let mainEl;
+  const clamp = (f) => Math.min(0.75, Math.max(0.25, f));
+  function drag(event) {
+    event.preventDefault();
+    const rect = mainEl.getBoundingClientRect();
+    const move = (e) => (split = clamp((e.clientX - rect.left) / rect.width));
+    const up = () => {
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+      save('split', split);
+    };
+    window.addEventListener('pointermove', move);
+    window.addEventListener('pointerup', up);
+  }
+  function key(event) {
+    const step = { ArrowLeft: -0.02, ArrowRight: 0.02 }[event.key];
+    if (step) {
+      split = clamp(split + step);
+      save('split', split);
+    }
+  }
+  function resetSplit() {
+    split = 0.5;
+    save('split', null);
+  }
   const l = $derived(station.link);
   $effect(() => {
     document.title = l ? `${l.station_id} - OpenWave` : 'OpenWave station';
@@ -35,17 +65,22 @@
   </span>
 </header>
 
+<div class="top"><Callsigns /></div>
+
 <nav>
-  {#each [['chat', 'Chat'], ['link', 'Link'], ['settings', 'Settings'], ['log', 'Log']] as [key, label]}
+  {#each [['chat', 'Chat'], ['link', 'Link'], ['log', 'Log']] as [key, label]}
     <button class:active={tab === key} onclick={() => (tab = key)}>{label}</button>
   {/each}
 </nav>
 
-<main>
+<main bind:this={mainEl} style:--left="{split}fr" style:--right="{1 - split}fr">
   <section class="chat" class:shown={tab === 'chat'}><Chat /></section>
   <section class="link" class:shown={tab === 'link'}><Link /></section>
-  <section class="settings" class:shown={tab === 'settings'}><Settings /></section>
   <section class="log" class:shown={tab === 'log'}><Log /></section>
+  <div class="divider" role="separator" aria-orientation="vertical" tabindex="0"
+       aria-valuenow={Math.round(split * 100)} aria-valuemin="25" aria-valuemax="75"
+       aria-label="Column width" title="Drag to resize the columns; double-click to reset"
+       onpointerdown={drag} ondblclick={resetSplit} onkeydown={key}></div>
 </main>
 
 <style>
@@ -61,16 +96,29 @@
   .rx { color: var(--good-text); }
   .idle { color: var(--muted); }
   .off { color: var(--critical); }
+  .top { padding: 10px 16px 0; }
   nav { display: flex; gap: 6px; padding: 8px 16px 0; }
   nav button.active { border-color: var(--accent); color: var(--accent); font-weight: 600; }
   main { padding: 10px 16px 16px; display: grid; gap: 12px; }
   section { display: none; min-width: 0; }
+  .divider { display: none; }
   section.shown { display: block; }
-  /* Wide screens: chat and link side by side; the log below them. */
+  /* Wide screens: chat with the log under it on the left (the same size),
+     the link panels on the right. */
   @media (min-width: 900px) {
     nav { display: none; }
-    main { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
-    section.chat, section.link { display: block; }
-    section.settings, section.log { display: block; grid-column: 1 / -1; }
+    main {
+      grid-template-columns: minmax(0, var(--left)) 10px minmax(0, var(--right));
+      column-gap: 2px; align-items: start;
+    }
+    section.chat, section.link, section.log { display: block; }
+    section.chat { grid-column: 1; grid-row: 1; }
+    section.log { grid-column: 1; grid-row: 2; }
+    section.link { grid-column: 3; grid-row: 1 / span 2; }
+    .divider {
+      display: block; grid-column: 2; grid-row: 1 / span 2; align-self: stretch;
+      cursor: col-resize; border-radius: 4px; touch-action: none;
+    }
+    .divider:hover, .divider:focus-visible { background: var(--grid); outline: none; }
   }
 </style>

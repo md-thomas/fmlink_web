@@ -4,8 +4,9 @@
   // the dashed line is where the current mode stops decoding reliably.
   import { station, MODE_LIMIT_DB } from './station.svelte.js';
 
+  let { height = null } = $props();   // the panel's height once resized
   const N = 60;
-  const H = 180;
+  const H = $derived(height ? Math.max(120, height - 8) : 180);
   const PAD = { top: 10, right: 12, bottom: 22, left: 34 };
   let width = $state(400);
   let hover = $state(null);   // index into points
@@ -19,7 +20,7 @@
     return [Math.floor(lo / 5) * 5, Math.ceil(hi / 5) * 5];
   });
   const plotW = $derived(Math.max(50, width - PAD.left - PAD.right));
-  const plotH = H - PAD.top - PAD.bottom;
+  const plotH = $derived(H - PAD.top - PAD.bottom);
   const x = (i) => PAD.left + (points.length <= 1 ? plotW / 2 : (i / (points.length - 1)) * plotW);
   const y = (v) => PAD.top + plotH - ((v - domain[0]) / (domain[1] - domain[0])) * plotH;
   const ticks = $derived.by(() => {

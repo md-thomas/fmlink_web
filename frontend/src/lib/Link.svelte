@@ -3,6 +3,7 @@
   import SnrChart from './SnrChart.svelte';
   import LevelMeter from './LevelMeter.svelte';
   import Constellation from './Constellation.svelte';
+  import Panel from './Panel.svelte';
 
   const l = $derived(station.link);
   const recent = $derived(station.bursts.slice(-8).reverse());
@@ -11,8 +12,8 @@
 </script>
 
 <div class="stack">
-  <div class="card">
-    <h2>Link</h2>
+  <Panel id="link" title="Link">
+    {#snippet children()}
     {#if l}
       <dl>
         <dt>Peer</dt><dd>{l.dst_id}</dd>
@@ -25,25 +26,23 @@
     {:else}
       <p class="muted">Waiting for the station…</p>
     {/if}
-  </div>
+    {/snippet}
+  </Panel>
 
-  <div class="card">
-    <h2>SNR of received bursts</h2>
-    <SnrChart />
-  </div>
+  <Panel id="snr" title="SNR of received bursts">
+    {#snippet children(size)}<SnrChart height={size.height} />{/snippet}
+  </Panel>
 
-  <div class="card">
-    <h2>Constellation (last burst)</h2>
-    <Constellation />
-  </div>
+  <Panel id="level" title="Receive level">
+    {#snippet children()}<LevelMeter />{/snippet}
+  </Panel>
 
-  <div class="card">
-    <h2>Receive level</h2>
-    <LevelMeter />
-  </div>
+  <Panel id="constellation" title="Constellation (last burst)">
+    {#snippet children(size)}<Constellation height={size.height} />{/snippet}
+  </Panel>
 
-  <div class="card">
-    <h2>Recent bursts</h2>
+  <Panel id="bursts" title="Recent bursts">
+    {#snippet children()}
     {#if recent.length}
       <table>
         <thead><tr><th>Time</th><th>Result</th><th>Mode</th><th class="r">SNR</th><th class="r">Sync</th></tr></thead>
@@ -62,7 +61,8 @@
     {:else}
       <p class="muted">None yet.</p>
     {/if}
-  </div>
+    {/snippet}
+  </Panel>
 </div>
 
 <style>
