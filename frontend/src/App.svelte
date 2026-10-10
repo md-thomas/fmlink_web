@@ -4,6 +4,7 @@
   import Link from './lib/Link.svelte';
   import Log from './lib/Log.svelte';
   import Callsigns from './lib/Callsigns.svelte';
+  import Settings from './lib/Settings.svelte';
   import { load, save } from './lib/storage.js';
 
   let tab = $state('chat');   // narrow screens show one panel at a time
@@ -68,19 +69,24 @@
 <div class="top"><Callsigns /></div>
 
 <nav>
-  {#each [['chat', 'Chat'], ['link', 'Link'], ['log', 'Log']] as [key, label]}
+  {#each [['chat', 'Chat'], ['link', 'Link'], ['settings', 'Settings'], ['log', 'Log']] as [key, label]}
     <button class:active={tab === key} onclick={() => (tab = key)}>{label}</button>
   {/each}
 </nav>
 
 <main bind:this={mainEl} style:--left="{split}fr" style:--right="{1 - split}fr">
-  <section class="chat" class:shown={tab === 'chat'}><Chat /></section>
-  <section class="link" class:shown={tab === 'link'}><Link /></section>
-  <section class="log" class:shown={tab === 'log'}><Log /></section>
+  <div class="col left">
+    <section class:shown={tab === 'chat'}><Chat /></section>
+    <section class:shown={tab === 'log'}><Log /></section>
+  </div>
   <div class="divider" role="separator" aria-orientation="vertical" tabindex="0"
        aria-valuenow={Math.round(split * 100)} aria-valuemin="25" aria-valuemax="75"
        aria-label="Column width" title="Drag to resize the columns; double-click to reset"
        onpointerdown={drag} ondblclick={resetSplit} onkeydown={key}></div>
+  <div class="col right">
+    <section class:shown={tab === 'settings'}><Settings /></section>
+    <section class:shown={tab === 'link'}><Link /></section>
+  </div>
 </main>
 
 <style>
@@ -101,6 +107,7 @@
   nav button.active { border-color: var(--accent); color: var(--accent); font-weight: 600; }
   main { padding: 10px 16px 16px; display: grid; gap: 12px; }
   section { display: none; min-width: 0; }
+  .col { display: contents; }   /* phones: one tab's section at a time */
   .divider { display: none; }
   section.shown { display: block; }
   /* Wide screens: chat with the log under it on the left (the same size),
@@ -111,12 +118,11 @@
       grid-template-columns: minmax(0, var(--left)) 10px minmax(0, var(--right));
       column-gap: 2px; align-items: start;
     }
-    section.chat, section.link, section.log { display: block; }
-    section.chat { grid-column: 1; grid-row: 1; }
-    section.log { grid-column: 1; grid-row: 2; }
-    section.link { grid-column: 3; grid-row: 1 / span 2; }
+    /* Each column stacks its own panels. */
+    .col { display: grid; gap: 12px; align-content: start; min-width: 0; }
+    .col section { display: block; }
     .divider {
-      display: block; grid-column: 2; grid-row: 1 / span 2; align-self: stretch;
+      display: block; align-self: stretch;
       cursor: col-resize; border-radius: 4px; touch-action: none;
     }
     .divider:hover, .divider:focus-visible { background: var(--grid); outline: none; }

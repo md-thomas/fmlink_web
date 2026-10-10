@@ -2,6 +2,7 @@
 event stream, and the frontend's static files.
 
   GET   /api/state       snapshot: link state, conversation, bursts, log
+  GET   /api/options     what the settings can be set to (modes, FEC presets)
   POST  /api/send        {"text": "..."}  - a chat line (queued, sent in order)
   POST  /api/command     {"line": "/ping"} - a station command
   PATCH /api/settings    {"mode_id": 3, ...} - Station.update_settings();
@@ -29,6 +30,19 @@ class CommandBody(BaseModel):
     line: str
 
 
+def options():
+    """Choices for the settings screen: every Waveform Mode (with its
+    default FEC preset and symbol rate - link state's max_symbol_rate says
+    which this station can use) and every FEC preset."""
+    import openwave_fec as fec
+    import openwave_link as link
+    return {
+        'modes': [{'mode_id': mode_id, 'modulation': m['modulation'], 'symbol_rate': m['symbol_rate'],
+                   'fec_preset': m['fec_preset']} for mode_id, m in sorted(link.WAVEFORM_MODES.items())],
+        'fec_presets': sorted(fec.PRESETS),
+    }
+
+
 def create_app(runner, lifespan=None):
     app = FastAPI(title='OpenWave station', lifespan=lifespan)
     hub = runner.hub
@@ -36,6 +50,10 @@ def create_app(runner, lifespan=None):
     @app.get('/api/state')
     async def state():
         return hub.snapshot(runner.station.link_state())
+
+    @app.get('/api/options')
+    async def get_options():
+        return options()
 
     @app.post('/api/send')
     async def send(body: SendBody):

@@ -1,6 +1,6 @@
 # Scope: OpenWave web interface
 
-Status: **accepted (2026-10-09). Step 1 done in open_wave (event feed `d639e2a`, live settings `1bb051d`). Step 2 done: the backend (FastAPI app, event hub, outbox, `run.sh`, tests). Step 3 under way: the Svelte frontend's Chat, Link and Log screens work (built files committed in `frontend/dist`); Settings and Radio screens next.**
+Status: **accepted (2026-10-09). Step 1 done in open_wave (event feed `d639e2a`, live settings `1bb051d`). Step 2 done: the backend (FastAPI app, event hub, outbox, `run.sh`, tests). Step 3: Chat, Link, Log (step 3) and Callsigns + Settings (step 4, first half) work; built files committed in `frontend/dist`. Next: the Radio screen.**
 
 A browser interface for one OpenWave station: chat, live link status,
 settings that change while it runs, the radio's levels, and diagnostics.

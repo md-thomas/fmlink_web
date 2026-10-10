@@ -95,6 +95,11 @@ class WebStationTests(unittest.IsolatedAsyncioTestCase):
                          ('K0MDT', 'W1AW', 2))
         self.assertTrue(state['link']['connected'])
         async with httpx.AsyncClient() as client:
+            opts = (await client.get(self.url('K0MDT', '/api/options'))).json()
+        self.assertIn({'mode_id': 3, 'modulation': 'qpsk', 'symbol_rate': 2400, 'fec_preset': 'r1_2_k7'},
+                      opts['modes'])
+        self.assertIn('r1_2_k3', opts['fec_presets'])
+        async with httpx.AsyncClient() as client:
             page = await client.get(self.url('K0MDT', '/'))
         self.assertEqual(page.status_code, 200)
         self.assertIn('OpenWave station', page.text)

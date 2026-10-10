@@ -9,8 +9,11 @@ a phone included. Design and plan: [SCOPE.md](SCOPE.md).
 screens - **Chat** (delivery status per message, segment progress),
 **Link** (mode, FEC, batching, peer; an SNR chart of received bursts with
 the current mode's limit; the radio's receive level; recent bursts) and
-**Log**, with a TX/RX indicator, a phone layout and dark mode. Settings and
-Radio screens come next.
+**Log**, plus **Callsigns** and **Settings** (mode, FEC, bandwidth, ACK,
+auto, batching, lead-in, max transmission, TX level, turnaround - changed
+while running; mode/FEC/batching changes reach the peer too), with a TX/RX
+indicator, collapsible and resizable panels, a phone layout and dark mode.
+The Radio screen comes next.
 
 ## Setup
 
@@ -75,6 +78,7 @@ page (`openwave_web/static/index.html`).
 | | |
 |---|---|
 | `GET /api/state` | snapshot: link state, this session's conversation, recent bursts and log |
+| `GET /api/options` | what the settings can be set to: every mode (modulation, symbol rate, default FEC) and FEC preset |
 | `POST /api/send` `{"text": "..."}` | send a chat line (queued, sent in order) |
 | `POST /api/command` `{"line": "/ping"}` | a station command (`/help` for the list; not `/quit`) |
 | `PATCH /api/settings` `{"mode_id": 3, ...}` | change settings while running (`mode_id`, `fec_preset`, `bandwidth`, `ack`, `auto`, `lead_in_s`, `tx_level`, `turnaround_s`, `max_tx_s`, `batching`); 400 with every problem if any value is invalid |
