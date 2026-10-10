@@ -12,8 +12,10 @@ the current mode's limit; the radio's receive level; recent bursts) and
 **Log**, plus **Callsigns** and **Settings** (mode, FEC, bandwidth, ACK,
 auto, batching, lead-in, max transmission, TX level, turnaround - changed
 while running; mode/FEC/batching changes reach the peer too), with a TX/RX
-indicator, collapsible and resizable panels, a phone layout and dark mode.
-**Radio** shows the interface (adapter, audio devices, PTT line and port),
+indicator, collapsible and resizable panels (the charts grow with them;
+the SNR and level charts have a Y-scale control - type a range, Fit, or
+Reset), a phone layout and dark mode. Panel layout and chart ranges are
+remembered per browser. **Radio** shows the interface (adapter, audio devices, PTT line and port),
 the receive level with its last 30 s, and transmit tests (a silent PTT
 carrier or a 1 kHz tone at the TX level, 1-5 s, each confirmed first).
 
