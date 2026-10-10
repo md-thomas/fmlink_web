@@ -4,6 +4,7 @@
 
 const MAX_BURSTS = 300;
 const MAX_LOGS = 500;
+export const LEVEL_HISTORY = 120;   // 30 s at the station's 4 readings a second
 
 export const station = $state({
   online: false,          // the page's connection to the station's server
@@ -12,6 +13,7 @@ export const station = $state({
   bursts: [],             // 'burst_rx' events, oldest first
   logs: [],               // log lines, oldest first
   level: null,            // the latest 'level' event (receive rms/peak dBFS)
+  levels: [],             // the last LEVEL_HISTORY 'level' events, oldest first
   transmitting: false,    // the radio is keyed
   receiving: false,       // a burst was decoded in the last couple of seconds
   constellation: null,    // the latest received burst's symbol points (+ that burst's SNR)
@@ -74,6 +76,8 @@ function handle(e) {
     }
     case 'level':
       station.level = e;
+      station.levels.push(e);
+      if (station.levels.length > LEVEL_HISTORY) station.levels.shift();
       break;
     case 'tx':
       if (e.state === 'keyed') station.transmitting = true;
@@ -115,6 +119,11 @@ async function call(method, path, body) {
 export function send(text) {
   return text.startsWith('/') ? call('POST', '/api/command', { line: text })
                               : call('POST', '/api/send', { text });
+}
+
+/** Key the radio for a test: kind 'carrier' (silent) or 'tone'. */
+export function radioTest(kind, seconds) {
+  return call('POST', '/api/radio-test', { kind, seconds });
 }
 
 /** Change settings while running, e.g. {mode_id: 3}. */

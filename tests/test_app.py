@@ -154,6 +154,12 @@ class WebStationTests(unittest.IsolatedAsyncioTestCase):
             modes = await client.post(self.url('K0MDT', '/api/command'), json={'line': '/modes'})
         self.assertEqual((quit_.status_code, not_cmd.status_code, empty.status_code), (400, 400, 400))
         self.assertEqual(modes.status_code, 200)
+        async with httpx.AsyncClient() as client:
+            test = await client.post(self.url('K0MDT', '/api/radio-test'), json={'kind': 'tone'})
+            state = (await client.get(self.url('K0MDT', '/api/state'))).json()
+        self.assertEqual(test.status_code, 400)            # the simulator isn't a radio
+        self.assertIn('real radio', test.json()['detail'])
+        self.assertIsNone(state['link']['radio'])
 
 
 if __name__ == '__main__':

@@ -1,6 +1,6 @@
 # Scope: OpenWave web interface
 
-Status: **accepted (2026-10-09). Step 1 done in openwave (event feed `d639e2a`, live settings `1bb051d`). Step 2 done: the backend (FastAPI app, event hub, outbox, `run.sh`, tests). Step 3: Chat, Link, Log (step 3) and Callsigns + Settings (step 4, first half) work; built files committed in `frontend/dist`. Next: the Radio screen.**
+Status: **accepted (2026-10-09). Step 1 done in openwave (event feed `d639e2a`, live settings `1bb051d`). Step 2 done: the backend (FastAPI app, event hub, outbox, `run.sh`, tests). Steps 3 and 4 done: Chat, Link, Log, Callsigns, Settings and Radio work; built files committed in `frontend/dist`. Next (step 5): diagnostics tools and the TNC screen.**
 
 A browser interface for one OpenWave station: chat, live link status,
 settings that change while it runs, the radio's levels, and diagnostics.

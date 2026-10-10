@@ -13,7 +13,9 @@ the current mode's limit; the radio's receive level; recent bursts) and
 auto, batching, lead-in, max transmission, TX level, turnaround - changed
 while running; mode/FEC/batching changes reach the peer too), with a TX/RX
 indicator, collapsible and resizable panels, a phone layout and dark mode.
-The Radio screen comes next.
+**Radio** shows the interface (adapter, audio devices, PTT line and port),
+the receive level with its last 30 s, and transmit tests (a silent PTT
+carrier or a 1 kHz tone at the TX level, 1-5 s, each confirmed first).
 
 ## Setup
 
@@ -81,6 +83,7 @@ page (`openwave_web/static/index.html`).
 | `GET /api/options` | what the settings can be set to: every mode (modulation, symbol rate, default FEC) and FEC preset |
 | `POST /api/send` `{"text": "..."}` | send a chat line (queued, sent in order) |
 | `POST /api/command` `{"line": "/ping"}` | a station command (`/help` for the list; not `/quit`) |
+| `POST /api/radio-test` `{"kind": "carrier"\|"tone", "seconds": 1}` | key the radio for a test (0.5-5 s); 400 off a radio |
 | `PATCH /api/settings` `{"mode_id": 3, ...}` | change settings while running (`mode_id`, `fec_preset`, `bandwidth`, `ack`, `auto`, `lead_in_s`, `tx_level`, `turnaround_s`, `max_tx_s`, `batching`); 400 with every problem if any value is invalid |
 | `WS /api/events` | a `snapshot`, then every event: `link`, `message_tx`, `delivery`, `message_rx`, `burst_rx`, `constellation`, `tx`, `level`, `log` (fields: `ota_station.Station._emit`) |
 

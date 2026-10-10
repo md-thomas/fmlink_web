@@ -5,6 +5,7 @@
   import Log from './lib/Log.svelte';
   import Callsigns from './lib/Callsigns.svelte';
   import Settings from './lib/Settings.svelte';
+  import Radio from './lib/Radio.svelte';
   import { load, save } from './lib/storage.js';
 
   let tab = $state('chat');   // narrow screens show one panel at a time
@@ -69,7 +70,7 @@
 <div class="top"><Callsigns /></div>
 
 <nav>
-  {#each [['chat', 'Chat'], ['link', 'Link'], ['settings', 'Settings'], ['log', 'Log']] as [key, label]}
+  {#each [['chat', 'Chat'], ['link', 'Link'], ['radio', 'Radio'], ['settings', 'Settings'], ['log', 'Log']] as [key, label]}
     <button class:active={tab === key} onclick={() => (tab = key)}>{label}</button>
   {/each}
 </nav>
@@ -85,6 +86,7 @@
        onpointerdown={drag} ondblclick={resetSplit} onkeydown={key}></div>
   <div class="col right">
     <section class:shown={tab === 'settings'}><Settings /></section>
+    <section class:shown={tab === 'radio'}><Radio /></section>
     <section class:shown={tab === 'link'}><Link /></section>
   </div>
 </main>

@@ -7,6 +7,8 @@ event stream, and the frontend's static files.
   POST  /api/command     {"line": "/ping"} - a station command
   PATCH /api/settings    {"mode_id": 3, ...} - Station.update_settings();
                          400 with the reason if any value is invalid
+  POST  /api/radio-test  {"kind": "carrier"|"tone", "seconds": 1} - key the
+                         radio (Station.radio_test); 400 off a radio
   WS    /api/events      a snapshot first, then every event as it happens
 """
 import asyncio
@@ -28,6 +30,11 @@ class SendBody(BaseModel):
 
 class CommandBody(BaseModel):
     line: str
+
+
+class RadioTestBody(BaseModel):
+    kind: str = 'carrier'
+    seconds: float = 1.0
 
 
 def options():
@@ -79,6 +86,14 @@ def create_app(runner, lifespan=None):
             return await runner.station.update_settings(**changes)
         except ValueError as exc:
             raise HTTPException(400, str(exc))
+
+    @app.post('/api/radio-test')
+    async def radio_test(body: RadioTestBody):
+        try:
+            runner.station.radio_test(body.kind, body.seconds)
+        except ValueError as exc:
+            raise HTTPException(400, str(exc))
+        return {'queued': True}
 
     @app.websocket('/api/events')
     async def events(websocket: WebSocket):

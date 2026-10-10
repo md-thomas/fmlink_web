@@ -1,7 +1,6 @@
 <script>
   import { station } from './station.svelte.js';
   import SnrChart from './SnrChart.svelte';
-  import LevelMeter from './LevelMeter.svelte';
   import Constellation from './Constellation.svelte';
   import Panel from './Panel.svelte';
 
@@ -31,10 +30,6 @@
 
   <Panel id="snr" title="SNR of received bursts">
     {#snippet children(size)}<SnrChart height={size.height} />{/snippet}
-  </Panel>
-
-  <Panel id="level" title="Receive level">
-    {#snippet children()}<LevelMeter />{/snippet}
   </Panel>
 
   <Panel id="constellation" title="Constellation (last burst)">
