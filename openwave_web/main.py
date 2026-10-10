@@ -12,6 +12,7 @@ open the page and transmit; --host 127.0.0.1 keeps it to this computer.
 import argparse
 import asyncio
 import contextlib
+import os
 import sys
 
 from . import paths
@@ -44,7 +45,15 @@ def build(args):
 
     @contextlib.asynccontextmanager
     async def lifespan(app):
-        await runner.start()
+        try:
+            await runner.start()
+        except SystemExit as exc:
+            # connect_from_args() reports a bad radio/sim setup (e.g. no
+            # audio device found) this way; let it through as a clean
+            # one-line error instead of the traceback Starlette's own
+            # lifespan handling would otherwise log it as.
+            print(exc.code, file=sys.stderr)
+            os._exit(1)
         try:
             yield
         finally:
