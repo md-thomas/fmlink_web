@@ -3,18 +3,38 @@
   // (secondary ink), against the target zone for open-squelch hiss.
   // Direct labels name the two lines; hover reads a moment back.
   import { station } from './station.svelte.js';
+  import { load } from './storage.js';
+  import YScale from './YScale.svelte';
 
-  const H = 90;
+  // grow: the panel has been resized - fill the height it has.
+  let { grow = false } = $props();
   const PAD = { top: 6, right: 40, bottom: 16, left: 30 };
-  const LO = -60, HI = 0;
+  const DEFAULT = [-60, 0];
   let width = $state(300);
+  let boxH = $state(0);
   let hover = $state(null);
+  let range = $state(load('yscale.level', null));
 
   const pts = $derived(station.levels.filter((e) => !e.transmitting));
+  const H = $derived(grow ? Math.max(90, boxH - 4) : 90);
+  const [LO, HI] = $derived(range || DEFAULT);
   const plotW = $derived(Math.max(40, width - PAD.left - PAD.right));
-  const plotH = H - PAD.top - PAD.bottom;
+  const plotH = $derived(H - PAD.top - PAD.bottom);
   const x = (i) => PAD.left + (pts.length <= 1 ? plotW : (i / (pts.length - 1)) * plotW);
   const y = (db) => PAD.top + ((HI - Math.max(LO, Math.min(HI, db))) / (HI - LO)) * plotH;
+  const ticks = $derived.by(() => {
+    const span = HI - LO, step = span > 40 ? 20 : span > 15 ? 10 : 5;
+    const t = [];
+    for (let v = Math.ceil(LO / step) * step; v <= HI; v += step) t.push(v);
+    return t;
+  });
+  const zoneTop = $derived(y(Math.min(HI, -10)));
+  const zoneBottom = $derived(y(Math.max(LO, -26)));
+  function fit() {
+    if (!pts.length) return null;
+    const lo = Math.min(...pts.map((e) => e.rms_dbfs)), hi = Math.max(...pts.map((e) => e.peak_dbfs));
+    return [Math.floor((lo - 3) / 5) * 5, Math.min(0, Math.ceil((hi + 3) / 5) * 5)];
+  }
   const line = (key) => pts.map((e, i) => `${i ? 'L' : 'M'}${x(i).toFixed(1)},${y(e[key]).toFixed(1)}`).join('');
   const last = $derived(pts[pts.length - 1]);
 
@@ -27,14 +47,17 @@
   const hp = $derived(hover === null ? null : pts[hover]);
 </script>
 
-<div class="wrap" bind:clientWidth={width}>
+<div class="wrap" class:grow bind:clientWidth={width}>
+  <div class="box" bind:clientHeight={boxH}>
   {#if pts.length < 2}
     <p class="muted small">The level history fills in while the station listens.</p>
   {:else}
     <svg {width} height={H} role="img" onpointermove={move} onpointerleave={() => (hover = null)}
          aria-label="Receive level over the last 30 seconds: rms {last.rms_dbfs} dBFS, peak {last.peak_dbfs} dBFS">
-      <rect x={PAD.left} width={plotW} y={y(-10)} height={y(-26) - y(-10)} class="zone" />
-      {#each [0, -20, -40, -60] as t}
+      {#if zoneBottom > zoneTop}
+        <rect x={PAD.left} width={plotW} y={zoneTop} height={zoneBottom - zoneTop} class="zone" />
+      {/if}
+      {#each ticks as t}
         <line x1={PAD.left} x2={PAD.left + plotW} y1={y(t)} y2={y(t)} class="grid" />
         <text x={PAD.left - 5} y={y(t) + 4} class="tick" text-anchor="end">{t}</text>
       {/each}
@@ -54,10 +77,15 @@
       </div>
     {/if}
   {/if}
+  </div>
+  <YScale id="level" bind:range unit="dBFS" auto={DEFAULT} {fit} />
 </div>
 
 <style>
-  .wrap { position: relative; width: 100%; margin-top: 8px; }
+  .wrap { position: relative; width: 100%; margin-top: 8px; display: flex; flex-direction: column; }
+  .wrap.grow { flex: 1 1 auto; min-height: 150px; }
+  .box { position: relative; }
+  .grow .box { flex: 1 1 auto; min-height: 0; }
   svg { display: block; touch-action: pan-y; }
   .zone { fill: var(--zone); }
   .grid { stroke: var(--grid); }

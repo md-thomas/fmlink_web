@@ -3,30 +3,40 @@
   // the title names it). Failed bursts are ✕ markers in the status colour;
   // the dashed line is where the current mode stops decoding reliably.
   import { station, MODE_LIMIT_DB } from './station.svelte.js';
+  import { load } from './storage.js';
+  import YScale from './YScale.svelte';
 
   let { height = null } = $props();   // the panel's height once resized
   const N = 60;
-  const H = $derived(height ? Math.max(120, height - 8) : 180);
+  const H = $derived(height ? Math.max(120, height - 40) : 180);   // 40: the Y-scale row
+  let range = $state(load('yscale.snr', null));   // [min, max] dB the user chose, or null: auto
   const PAD = { top: 10, right: 12, bottom: 22, left: 34 };
   let width = $state(400);
   let hover = $state(null);   // index into points
 
   const points = $derived(station.bursts.slice(-N).map((b, i) => ({ ...b, i })));
   const limit = $derived(station.link ? MODE_LIMIT_DB[station.link.mode_id] : null);
-  const domain = $derived.by(() => {
+  const autoDomain = $derived.by(() => {
     const vals = points.map((p) => p.snr_db).filter((v) => v !== null);
     if (limit !== null && limit !== undefined) vals.push(limit);
     const lo = Math.min(0, ...vals), hi = Math.max(25, ...vals);
     return [Math.floor(lo / 5) * 5, Math.ceil(hi / 5) * 5];
   });
+  const domain = $derived(range || autoDomain);
+  function fit() {
+    const vals = points.map((p) => p.snr_db).filter((v) => v !== null);
+    if (!vals.length) return null;
+    return [Math.floor((Math.min(...vals) - 2) / 2) * 2, Math.ceil((Math.max(...vals) + 2) / 2) * 2];
+  }
   const plotW = $derived(Math.max(50, width - PAD.left - PAD.right));
   const plotH = $derived(H - PAD.top - PAD.bottom);
   const x = (i) => PAD.left + (points.length <= 1 ? plotW / 2 : (i / (points.length - 1)) * plotW);
-  const y = (v) => PAD.top + plotH - ((v - domain[0]) / (domain[1] - domain[0])) * plotH;
+  const y = (v) => PAD.top + plotH - ((Math.max(domain[0], Math.min(domain[1], v)) - domain[0]) / (domain[1] - domain[0])) * plotH;
   const ticks = $derived.by(() => {
-    const step = domain[1] - domain[0] > 30 ? 10 : 5;
+    const span = domain[1] - domain[0];
+    const step = span > 30 ? 10 : span > 12 ? 5 : span > 5 ? 2 : 1;
     const t = [];
-    for (let v = domain[0]; v <= domain[1]; v += step) t.push(v);
+    for (let v = Math.ceil(domain[0] / step) * step; v <= domain[1]; v += step) t.push(v);
     return t;
   });
   const ok = $derived(points.filter((p) => p.status === 'ok' && p.snr_db !== null));
@@ -58,7 +68,7 @@
         <text x={PAD.left - 6} y={y(t) + 4} class="tick" text-anchor="end">{t}</text>
       {/each}
       <text x={PAD.left - 6} y={H - 4} class="tick" text-anchor="end">dB</text>
-      {#if limit !== null && limit !== undefined}
+      {#if limit !== null && limit !== undefined && limit >= domain[0] && limit <= domain[1]}
         <line x1={PAD.left} x2={PAD.left + plotW} y1={y(limit)} y2={y(limit)} class="limit" />
         <text x={PAD.left + plotW} y={y(limit) - 4} class="tick" text-anchor="end">
           mode {station.link.mode_id} limit ≈ {limit} dB
@@ -86,6 +96,7 @@
       </div>
     {/if}
   {/if}
+  <YScale id="snr" bind:range unit="dB" auto={autoDomain} {fit} />
 </div>
 
 <style>

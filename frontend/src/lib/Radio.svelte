@@ -25,8 +25,9 @@
   }
 </script>
 
-<Panel id="radio" title="Radio">
-{#snippet children()}
+<Panel id="radio" title="Radio" fill>
+{#snippet children(size)}
+<div class="radio" class:grow={!!size.height}>
   {#if !station.link}
     <p class="muted">Waiting for the station…</p>
   {:else if !r}
@@ -42,7 +43,7 @@
 
     <h3>Receive level</h3>
     <LevelMeter />
-    <LevelHistory />
+    <LevelHistory grow={!!size.height} />
 
     <h3>Transmit tests</h3>
     <div class="tests">
@@ -63,10 +64,13 @@
     {/if}
     {#if result}<p class={result.ok ? 'good' : 'bad'}>{result.text}</p>{/if}
   {/if}
+</div>
 {/snippet}
 </Panel>
 
 <style>
+  .radio { display: flex; flex-direction: column; overflow: auto; min-height: 0; }
+  .radio.grow { flex: 1 1 auto; }
   dl { display: grid; grid-template-columns: max-content 1fr; gap: 3px 12px; margin: 0 0 4px; font-size: 0.9rem; }
   dt { color: var(--muted); }
   dd { margin: 0; overflow-wrap: anywhere; }
