@@ -3,10 +3,11 @@ requires = ["setuptools>=61"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "open_wave_web"
+name = "openwave_web"
 version = "0.1.0"
 description = "Web interface for an OpenWave station (FastAPI backend + Svelte frontend)"
 requires-python = ">=3.11"
+license = {text = "MIT"}
 dependencies = ["fastapi", "uvicorn[standard]", "numpy"]
 
 [project.optional-dependencies]

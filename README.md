@@ -1,6 +1,6 @@
 # OpenWave web interface
 
-A browser interface for one [OpenWave](../open_wave) station: chat with the
+A browser interface for one [OpenWave](../openwave) station: chat with the
 peer station, watch the link live, and change settings while it runs. It
 runs on the station computer and is opened from any browser on the network,
 a phone included. Design and plan: [SCOPE.md](SCOPE.md).
@@ -17,18 +17,18 @@ The Radio screen comes next.
 
 ## Setup
 
-Expects `open_wave` and `ota_sim` checked out next to this repo (override
+Expects `openwave` and `ota_sim` checked out next to this repo (override
 with `OPENWAVE_SRC` / `OTA_SIM_SRC`):
 
 ```
 Projects/
-  open_wave/
+  openwave/
   ota_sim/
-  open_wave_web/   <- this repo
+  openwave_web/   <- this repo
 ```
 
 ```bash
-cd ~/Projects/open_wave_web
+cd ~/Projects/openwave_web
 python3 -m venv --system-site-packages .venv   # reuses numpy/scipy and the installed ota_sim
 .venv/bin/pip install -e '.[test]'
 ```
@@ -42,7 +42,7 @@ are on by default here):
 ./run.sh --station-id K0MDT-1 --dst K0MDT-2 --radio --tx-level 0.6
 ```
 
-or over the simulator (start it first, from `open_wave`:
+or over the simulator (start it first, from `openwave`:
 `python3 -m ota_sim.simulator --channel fm --port mic`):
 
 ```bash
@@ -92,3 +92,7 @@ page (`openwave_web/static/index.html`).
 
 Two stations, each with its own server, through an in-process FM
 simulator, driven through the real HTTP and WebSocket API.
+
+## License
+
+MIT - see [LICENSE](LICENSE).

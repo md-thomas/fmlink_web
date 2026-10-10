@@ -58,7 +58,7 @@ def parse_args(argv=None):
     p.add_argument('--station-id', required=True, help="this station's callsign")
     p.add_argument('--dst', required=True, help="the peer station's callsign")
     p.add_argument('--radio', nargs='?', const='', default=None, metavar='INTERFACE',
-                   help='use a real radio (aioc, digirig, ... - see open_wave/radio_stations.py)')
+                   help='use a real radio (aioc, digirig, ... - see openwave/radio_stations.py)')
     p.add_argument('--sim-host', help='use the ota_sim simulator at this address instead '
                                       '(run it with --channel fm --port mic)')
     p.add_argument('--sim-port', type=int, default=9500)
