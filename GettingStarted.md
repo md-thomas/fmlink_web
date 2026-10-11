@@ -19,9 +19,9 @@ with the `OPENWAVE_SRC` / `OTA_SIM_SRC` environment variables if not):
 
 ```bash
 mkdir -p ~/Projects && cd ~/Projects
-git clone git@github.com:md-thomas/openwave.git
-git clone git@github.com:md-thomas/ota_sim.git
-git clone git@github.com:md-thomas/openwave_web.git
+git clone https://github.com/md-thomas/openwave.git
+git clone https://github.com/md-thomas/ota_sim.git
+git clone https://github.com/md-thomas/openwave_web.git
 ```
 
 ## 3. Set up the venv
