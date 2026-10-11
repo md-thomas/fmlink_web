@@ -32,7 +32,21 @@ python3 -m venv --system-site-packages .venv   # reuses numpy/scipy/pyserial
 .venv/bin/pip install -e '.[test]'
 ```
 
-## 4. Run it
+## 4. PTT permission
+
+The radio interface's serial PTT port (`/dev/ttyACM0` or `/dev/ttyUSB0`)
+is owned `root:dialout`, so without this step PTT silently fails to key
+(logged as `[radio tx error] ... - burst NOT sent`, nothing sent). Add
+yourself to the group, then log out and back in:
+
+```bash
+sudo usermod -aG dialout $USER
+```
+
+(For the current plug-in only, as a one-off: `sudo chmod a+rw
+/dev/ttyACM0`, resets on replug.)
+
+## 5. Run it
 
 ```bash
 ./run.sh --station-id K0MDT-1 --dst K0MDT-2 --radio --tx-level 0.6
