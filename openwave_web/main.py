@@ -71,7 +71,7 @@ def parse_args(argv=None):
     p.add_argument('--sim-host', help='use the ota_sim simulator at this address instead '
                                       '(run it with --channel fm --port mic)')
     p.add_argument('--sim-port', type=int, default=9500)
-    p.add_argument('--ptt-line', choices=('dtr', 'rts'), help="override the interface's PTT line")
+    p.add_argument('--ptt-line', choices=('dtr', 'rts', 'vox'), help="override the interface's PTT line")
     p.add_argument('--tx-level', type=float, default=0.5, help='transmit audio level (default 0.5)')
     p.add_argument('--turnaround-ms', type=float, default=None,
                    help='wait after receiving before keying up (default 600)')

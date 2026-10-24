@@ -37,7 +37,7 @@
       <dt>Interface</dt><dd>{r.name}{r.host && r.host !== 'localhost' ? ` on ${r.host}` : ''}</dd>
       <dt>Audio in</dt><dd class="mono">{r.rx_device}</dd>
       <dt>Audio out</dt><dd class="mono">{r.tx_device}</dd>
-      <dt>PTT</dt><dd class="mono">{r.ptt_line?.toUpperCase()} on {r.ptt_port}</dd>
+      <dt>PTT</dt><dd class="mono">{r.ptt_line === 'vox' ? 'VOX (audio-triggered, no PTT line)' : `${r.ptt_line?.toUpperCase()} on ${r.ptt_port}`}</dd>
       <dt>TX level</dt><dd class="num">{station.link.tx_level}</dd>
     </dl>
 
@@ -52,9 +52,13 @@
           {#each [1, 2, 3, 5] as s}<option value={s}>{s} s</option>{/each}
         </select>
       </label>
-      <button onclick={() => (confirm = 'carrier')} disabled={!station.online || station.transmitting}>PTT test</button>
+      <button onclick={() => (confirm = 'carrier')} disabled={!station.online || station.transmitting || r.ptt_line === 'vox'}>PTT test</button>
       <button onclick={() => (confirm = 'tone')} disabled={!station.online || station.transmitting}>Test tone</button>
     </div>
+    {#if r.ptt_line === 'vox'}
+      <p class="muted">PTT test is disabled on a VOX interface - it sends silence, which won't
+        trigger VOX. Use the test tone instead to confirm it keys the radio.</p>
+    {/if}
     {#if confirm}
       <div class="confirm" role="alertdialog" aria-label="Confirm transmission">
         <span>Transmit a {NAMES[confirm]} for {seconds} s{confirm === 'tone' ? ` at TX level ${station.link.tx_level}` : ''}?</span>
