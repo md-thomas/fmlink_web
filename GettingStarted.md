@@ -34,6 +34,9 @@ python3 -m venv --system-site-packages .venv   # reuses numpy/scipy/pyserial
 
 ## 4. PTT permission
 
+Skip this step for a VOX interface (e.g. SignaLink) - there's no serial
+PTT port to permission; it keys itself off the transmitted audio.
+
 The radio interface's serial PTT port (`/dev/ttyACM0` or `/dev/ttyUSB0`)
 is owned `root:dialout`, so without this step PTT silently fails to key
 (logged as `[radio tx error] ... - burst NOT sent`, nothing sent). Add
