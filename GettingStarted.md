@@ -49,10 +49,30 @@ sudo usermod -aG dialout $USER
 (For the current plug-in only, as a one-off: `sudo chmod a+rw
 /dev/ttyACM0`, resets on replug.)
 
-## 5. Run it
+## 5. Set this station's defaults (optional)
+
+So a plain `./run.sh` (or a restart) always starts this station the same
+way, without retyping its arguments every time:
+
+```bash
+cp station.env.example station.env
+```
+
+Edit `station.env`'s `RUN_ARGS` for this station's own `--station-id`,
+`--dst`, `--radio`/`--sim-host`, `--tx-level`, etc. It's gitignored - each
+station's is different. Any arguments given on the command line override
+it entirely rather than merging with it.
+
+## 6. Run it
 
 ```bash
 ./run.sh --station-id K0MDT-1 --dst K0MDT-2 --radio --tx-level 0.6
+```
+
+or, with `station.env` set up:
+
+```bash
+./run.sh
 ```
 
 Then open `http://<this computer's name or address>:8080` from any
