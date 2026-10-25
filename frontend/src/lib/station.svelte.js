@@ -11,7 +11,7 @@ export const station = $state({
   link: null,             // the latest 'link' event (mode, FEC, batching, ...)
   messages: [],           // {kind: 'tx'|'rx', id, text, src, dst, time, segments, acked, done, failed, ack}
   bursts: [],             // 'burst_rx' events, oldest first
-  logs: [],               // log lines, oldest first
+  logs: [],               // {time, text} log lines, oldest first
   level: null,            // the latest 'level' event (receive rms/peak dBFS)
   levels: [],             // the last LEVEL_HISTORY 'level' events, oldest first
   transmitting: false,    // the radio is keyed
@@ -44,7 +44,7 @@ function handle(e) {
       station.messages = [];
       for (const m of e.messages) handle(m);
       station.bursts = e.bursts.slice(-MAX_BURSTS);
-      station.logs = e.logs.map((l) => l.text).slice(-MAX_LOGS);
+      station.logs = e.logs.map((l) => ({ time: l.time, text: l.text })).slice(-MAX_LOGS);
       station.constellation = station.prevConstellation = null;
       for (const c of e.constellations || []) handle(c);
       break;
@@ -84,7 +84,7 @@ function handle(e) {
       if (e.state === 'released') station.transmitting = false;
       break;
     case 'log':
-      station.logs.push(e.text);
+      station.logs.push({ time: e.time, text: e.text });
       if (station.logs.length > MAX_LOGS) station.logs.shift();
       break;
   }
