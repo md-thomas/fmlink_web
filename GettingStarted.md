@@ -1,6 +1,6 @@
 # Getting started
 
-Installing OpenWave's web interface on a new computer (a radio station
+Installing FMlink's web interface on a new computer (a radio station
 or otherwise).
 
 ## 1. System packages
@@ -14,20 +14,20 @@ sudo apt install python3-venv python3-numpy python3-scipy python3-serial alsa-ut
 
 ## 2. Clone the repos
 
-`openwave` and `ota_sim` are expected next to `openwave_web` (override
-with the `OPENWAVE_SRC` / `OTA_SIM_SRC` environment variables if not):
+`fmlink` and `ota_sim` are expected next to `fmlink_web` (override
+with the `FMLINK_SRC` / `OTA_SIM_SRC` environment variables if not):
 
 ```bash
 mkdir -p ~/Projects && cd ~/Projects
-git clone https://github.com/md-thomas/openwave.git
+git clone https://github.com/md-thomas/fmlink.git
 git clone https://github.com/md-thomas/ota_sim.git
-git clone https://github.com/md-thomas/openwave_web.git
+git clone https://github.com/md-thomas/fmlink_web.git
 ```
 
 ## 3. Set up the venv
 
 ```bash
-cd openwave_web
+cd fmlink_web
 python3 -m venv --system-site-packages .venv   # reuses numpy/scipy/pyserial
 .venv/bin/pip install -e '.[test]'
 ```

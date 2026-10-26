@@ -1,8 +1,8 @@
-# Scope: OpenWave web interface
+# Scope: FMlink web interface
 
-Status: **accepted (2026-10-09). Step 1 done in openwave (event feed `d639e2a`, live settings `1bb051d`). Step 2 done: the backend (FastAPI app, event hub, outbox, `run.sh`, tests). Steps 3 and 4 done: Chat, Link, Log, Callsigns, Settings and Radio work; built files committed in `frontend/dist`. Next (step 5): diagnostics tools and the TNC screen.**
+Status: **accepted (2026-10-09). Step 1 done in fmlink (event feed `d639e2a`, live settings `1bb051d`). Step 2 done: the backend (FastAPI app, event hub, outbox, `run.sh`, tests). Steps 3 and 4 done: Chat, Link, Log, Callsigns, Settings and Radio work; built files committed in `frontend/dist`. Next (step 5): diagnostics tools and the TNC screen.**
 
-A browser interface for one OpenWave station: chat, live link status,
+A browser interface for one FMlink station: chat, live link status,
 settings that change while it runs, the radio's levels, and diagnostics.
 It runs on the station computer (a laptop now, maybe a headless Raspberry
 Pi later) and is opened from any browser on the home network, including a
@@ -10,8 +10,8 @@ phone.
 
 ## Decisions so far (2026-10-09)
 
-- **New repo, `openwave_web`**, next to `openwave` and `ota_sim` (like
-  `ota_sim`, it imports `openwave`'s modules). `openwave_ui` (the
+- **New repo, `fmlink_web`**, next to `fmlink` and `ota_sim` (like
+  `ota_sim`, it imports `fmlink`'s modules). `fmlink_ui` (the
   customtkinter desktop GUI, simulator only) stays as it is for now.
 - **Frontend: Svelte + Vite**, built once into static files that the
   backend serves.
@@ -37,7 +37,7 @@ phone.
  │                        │                                             │
  │        ota_station.Station  (+ Tnc in TNC mode)  - same asyncio loop │
  │                        │                                             │
- │        openwave_radio.RadioTransport  ── AIOC/Digirig ── the radio   │
+ │        fmlink_radio.RadioTransport  ── AIOC/Digirig ── the radio   │
  │        (or ota_sim, for testing without a radio)                     │
  └──────────────────────────────────────────────────────────────────────┘
 ```
@@ -49,7 +49,7 @@ phone.
 - A page that connects late gets a snapshot (current settings, link
   state, the last N messages and bursts) and then the live stream.
 
-## Changes needed in `openwave`
+## Changes needed in `fmlink`
 
 1. **A structured event feed.** Today the station reports through log
    text (`on_log`), `on_message` and `on_symbols`. Add one optional
@@ -98,9 +98,9 @@ Mobile layout: chat and link status first; the rest behind tabs.
 
 ## Plan
 
-1. **Event feed + settings setters + level tap** in `openwave` (tests
+1. **Event feed + settings setters + level tap** in `fmlink` (tests
    first; the CLI unchanged).
-2. **Backend skeleton** in `openwave_web`: FastAPI app that starts a
+2. **Backend skeleton** in `fmlink_web`: FastAPI app that starts a
    station, REST for send and settings, WebSocket events; tested against
    the simulator.
 3. **MVP frontend:** Chat and Link screens. Try it over the radios.
@@ -110,7 +110,7 @@ Mobile layout: chat and link status first; the rest behind tabs.
 ## Running it (planned)
 
 ```bash
-cd ~/Projects/openwave_web
+cd ~/Projects/fmlink_web
 ./run.sh --station-id K0MDT-1 --dst K0MDT-2 --radio --tx-level 0.6
 # then open http://<station computer>:8080 from any browser on the network
 ```

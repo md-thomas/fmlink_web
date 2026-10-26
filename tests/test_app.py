@@ -11,10 +11,10 @@ import httpx
 import uvicorn
 import websockets
 
-from openwave_web import main as web_main
-from openwave_web.hub import EventHub, json_safe
+from fmlink_web import main as web_main
+from fmlink_web.hub import EventHub, json_safe
 
-from ota_sim import FMLink  # noqa: E402  (paths installed by openwave_web.main)
+from ota_sim import FMLink  # noqa: E402  (paths installed by fmlink_web.main)
 from ota_sim.simulator import OTASimulator  # noqa: E402
 
 
@@ -102,7 +102,7 @@ class WebStationTests(unittest.IsolatedAsyncioTestCase):
         async with httpx.AsyncClient() as client:
             page = await client.get(self.url('K0MDT', '/'))
         self.assertEqual(page.status_code, 200)
-        self.assertIn('OpenWave station', page.text)
+        self.assertIn('FMlink station', page.text)
 
     async def test_a_message_from_one_page_to_the_other(self):
         async with websockets.connect(self.url('K0MDT', '/api/events', ws=True)) as ws_a, \

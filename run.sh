@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Runs one OpenWave station with its web interface (see openwave_web/main.py
+# Runs one FMlink station with its web interface (see fmlink_web/main.py
 # or ./run.sh --help). Works from any directory.
 #
 # With no arguments, uses station.env's RUN_ARGS if that file exists (copy
@@ -21,4 +21,4 @@ if [ "$#" -eq 0 ] && [ -f station.env ]; then
     source station.env
     set -- "${RUN_ARGS[@]}"
 fi
-exec "$VENV_PYTHON" -m openwave_web.main "$@"
+exec "$VENV_PYTHON" -m fmlink_web.main "$@"

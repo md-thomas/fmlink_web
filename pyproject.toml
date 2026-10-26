@@ -3,21 +3,21 @@ requires = ["setuptools>=61"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "openwave_web"
+name = "fmlink_web"
 version = "0.1.0"
-description = "Web interface for an OpenWave station (FastAPI backend + Svelte frontend)"
+description = "Web interface for an FMlink station (FastAPI backend + Svelte frontend)"
 requires-python = ">=3.11"
 license = {text = "MIT"}
-dependencies = ["fastapi", "uvicorn[standard]", "numpy"]
+dependencies = ["fastapi", "uvicorn[standard]>=0.54", "numpy"]
 
 [project.optional-dependencies]
 test = ["httpx"]
 
 [project.scripts]
-openwave-web = "openwave_web.main:main"
+fmlink-web = "fmlink_web.main:main"
 
 [tool.setuptools]
-packages = ["openwave_web"]
+packages = ["fmlink_web"]
 
 [tool.setuptools.package-data]
-openwave_web = ["static/*"]
+fmlink_web = ["static/*"]

@@ -40,13 +40,13 @@
   }
   const l = $derived(station.link);
   $effect(() => {
-    document.title = l ? `${l.station_id} - OpenWave` : 'OpenWave station';
+    document.title = l ? `${l.station_id} - FMlink` : 'FMlink station';
   });
 </script>
 
 <header>
   <div class="who">
-    <strong>{l ? l.station_id : 'OpenWave'}</strong>
+    <strong>{l ? l.station_id : 'FMlink'}</strong>
     {#if l}<span class="secondary">→ {l.dst_id}</span>{/if}
   </div>
   {#if l}

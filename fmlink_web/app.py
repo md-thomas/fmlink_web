@@ -41,8 +41,8 @@ def options():
     """Choices for the settings screen: every Waveform Mode (with its
     default FEC preset and symbol rate - link state's max_symbol_rate says
     which this station can use) and every FEC preset."""
-    import openwave_fec as fec
-    import openwave_link as link
+    import fmlink_fec as fec
+    import fmlink_link as link
     return {
         'modes': [{'mode_id': mode_id, 'modulation': m['modulation'], 'symbol_rate': m['symbol_rate'],
                    'fec_preset': m['fec_preset']} for mode_id, m in sorted(link.WAVEFORM_MODES.items())],
@@ -51,7 +51,7 @@ def options():
 
 
 def create_app(runner, lifespan=None):
-    app = FastAPI(title='OpenWave station', lifespan=lifespan)
+    app = FastAPI(title='FMlink station', lifespan=lifespan)
     hub = runner.hub
 
     @app.get('/api/state')

@@ -1,4 +1,4 @@
-"""Run one OpenWave station with its web interface.
+"""Run one FMlink station with its web interface.
 
   ./run.sh --station-id K0MDT-1 --dst K0MDT-2 --radio --tx-level 0.6
   ./run.sh --station-id K0MDT-1 --dst K0MDT-2 --sim-host 127.0.0.1   # the simulator
@@ -19,8 +19,8 @@ from . import paths
 
 paths.install()
 
-import openwave_audio as audio_phy  # noqa: E402
-import openwave_link as link  # noqa: E402
+import fmlink_audio as audio_phy  # noqa: E402
+import fmlink_link as link  # noqa: E402
 import ota_station  # noqa: E402
 import uvicorn  # noqa: E402
 
@@ -67,7 +67,7 @@ def parse_args(argv=None):
     p.add_argument('--station-id', required=True, help="this station's callsign")
     p.add_argument('--dst', required=True, help="the peer station's callsign")
     p.add_argument('--radio', nargs='?', const='', default=None, metavar='INTERFACE',
-                   help='use a real radio (aioc, digirig, ... - see openwave/radio_stations.py)')
+                   help='use a real radio (aioc, digirig, ... - see fmlink/radio_stations.py)')
     p.add_argument('--sim-host', help='use the ota_sim simulator at this address instead '
                                       '(run it with --channel fm --port mic)')
     p.add_argument('--sim-port', type=int, default=9500)
@@ -105,7 +105,7 @@ def parse_args(argv=None):
 def main(argv=None):
     args = parse_args(argv)
     runner, app = build(args)
-    print(f"[web] OpenWave station {args.station_id} - open http://{args.host}:{args.port} "
+    print(f"[web] FMlink station {args.station_id} - open http://{args.host}:{args.port} "
           f"(0.0.0.0 = any address of this computer)", file=sys.stderr)
     server = uvicorn.Server(uvicorn.Config(app, host=args.host, port=args.port, log_level='warning',
                                            timeout_graceful_shutdown=3))

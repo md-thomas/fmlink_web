@@ -1,6 +1,8 @@
-# OpenWave web interface
+# FMlink web interface
 
-A browser interface for one [OpenWave](../openwave) station: chat with the
+*(Formerly openwave_web - renamed to FMlink 2026-10-25.)*
+
+A browser interface for one [FMlink](../fmlink) station: chat with the
 peer station, watch the link live, and change settings while it runs. It
 runs on the station computer and is opened from any browser on the network,
 a phone included. Design and plan: [SCOPE.md](SCOPE.md).
@@ -21,18 +23,18 @@ carrier or a 1 kHz tone at the TX level, 1-5 s, each confirmed first).
 
 ## Setup
 
-Expects `openwave` and `ota_sim` checked out next to this repo (override
-with `OPENWAVE_SRC` / `OTA_SIM_SRC`):
+Expects `fmlink` and `ota_sim` checked out next to this repo (override
+with `FMLINK_SRC` / `OTA_SIM_SRC`):
 
 ```
 Projects/
-  openwave/
+  fmlink/
   ota_sim/
-  openwave_web/   <- this repo
+  fmlink_web/   <- this repo
 ```
 
 ```bash
-cd ~/Projects/openwave_web
+cd ~/Projects/fmlink_web
 python3 -m venv --system-site-packages .venv   # reuses numpy/scipy and the installed ota_sim
 .venv/bin/pip install -e '.[test]'
 ```
@@ -46,7 +48,7 @@ are on by default here):
 ./run.sh --station-id K0MDT-1 --dst K0MDT-2 --radio --tx-level 0.6
 ```
 
-or over the simulator (start it first, from `openwave`:
+or over the simulator (start it first, from `fmlink`:
 `python3 -m ota_sim.simulator --channel fm --port mic`):
 
 ```bash
@@ -75,7 +77,7 @@ npm run build   # rebuild dist/ - commit it with the source change
 ```
 
 Without `frontend/dist/` the server falls back to a minimal placeholder
-page (`openwave_web/static/index.html`).
+page (`fmlink_web/static/index.html`).
 
 ## API
 
