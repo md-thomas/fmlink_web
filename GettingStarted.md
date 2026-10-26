@@ -63,13 +63,13 @@ cp station.env.example station.env
 
 Edit `station.env`'s `RUN_ARGS` for this station's own `--station-id`,
 `--dst`, `--radio`/`--sim-host`, `--tx-level`, etc. It's gitignored - each
-station's is different. Any arguments given on the command line override
+station's ID is different. Any arguments given on the command line override
 it entirely rather than merging with it.
 
 ## 6. Run it
 
 ```bash
-./run.sh --station-id K0MDT-1 --dst K0MDT-2 --radio --tx-level 0.6
+./run.sh --station-id <callsign>-1 --dst <callsign>-2 --radio --tx-level 0.6
 ```
 
 or, with `station.env` set up:
