@@ -1,7 +1,10 @@
 # Getting started
 
 Installing FMlink's web interface on a new computer (a radio station
-or otherwise).
+or otherwise). For the whole station - checking the interface, setting
+the receive level, a no-radio test over the simulator and
+troubleshooting - see fmlink's
+[INSTALL.md](https://github.com/md-thomas/fmlink/blob/main/INSTALL.md).
 
 ## 1. System packages
 

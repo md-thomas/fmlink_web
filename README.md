@@ -23,6 +23,10 @@ carrier or a 1 kHz tone at the TX level, 1-5 s, each confirmed first).
 
 ## Setup
 
+Step by step on a new computer, radio checks included: fmlink's
+[INSTALL.md](https://github.com/md-thomas/fmlink/blob/main/INSTALL.md)
+(or the shorter [GettingStarted.md](GettingStarted.md) for this repo alone).
+
 Expects `fmlink` and `ota_sim` checked out next to this repo (override
 with `FMLINK_SRC` / `OTA_SIM_SRC`):
 
