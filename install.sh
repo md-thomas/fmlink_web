@@ -5,6 +5,10 @@
 # do it by hand instead. Safe to re-run (e.g. after a git pull) - it
 # skips anything already done.
 #
+# Verified 2026-11-07 re-run on two already-set-up stations (K0MDT-1,
+# K0MDT-2/hampi): every step correctly detected its prior work and
+# skipped, and the running station was undisturbed.
+#
 #   ./install.sh
 set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
