@@ -1,0 +1,20 @@
+# A systemd --user service for this station, so it starts on boot/login
+# and restarts itself if it crashes, instead of needing a terminal left
+# open running ./run.sh. See GettingStarted.md for how to install this.
+#
+# station.env (see station.env.example) must already be set up - this
+# unit runs a bare ./run.sh, with no arguments of its own.
+
+[Unit]
+Description=FMlink station
+After=network.target sound.target
+
+[Service]
+Type=simple
+WorkingDirectory=%INSTALL_DIR%
+ExecStart=%INSTALL_DIR%/run.sh
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target

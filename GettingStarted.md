@@ -81,3 +81,30 @@ or, with `station.env` set up:
 Then open `http://<this computer's name or address>:8080` from any
 browser on the network. `./run.sh --help` lists every option; see the
 [README](README.md) for the simulator, the API, and more.
+
+## 7. Run it as a systemd user service (optional)
+
+So it starts on boot/login and restarts itself if it ever crashes,
+instead of needing a terminal open running `./run.sh`. Needs step 5
+(`station.env`) done first - the service runs a bare `./run.sh`, with no
+arguments of its own:
+
+```bash
+mkdir -p ~/.config/systemd/user
+sed "s#%INSTALL_DIR%#$(pwd)#" systemd/fmlink-station.service.example \
+    > ~/.config/systemd/user/fmlink-station.service
+systemctl --user daemon-reload
+systemctl --user enable --now fmlink-station.service
+loginctl enable-linger $USER   # keep it running after you log out
+```
+
+Check it with `systemctl --user status fmlink-station` and
+`journalctl --user -u fmlink-station -f`. `systemctl --user restart
+fmlink-station` restarts it (e.g. after `git pull`); `systemctl --user
+stop fmlink-station` to run `./run.sh` by hand instead.
+
+If it fails with an ALSA permission error when started this way but
+works fine run by hand, this account is probably getting its `/dev/snd`
+access from a logged-in desktop session (logind's seat ACL) rather than
+the `audio` group - add yourself to it: `sudo usermod -aG audio $USER`,
+then log out and back in (or reboot) before relying on this unattended.
