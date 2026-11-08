@@ -78,6 +78,11 @@ Edit `station.env`'s `RUN_ARGS` for this station's own `--station-id`,
 station's ID is different. Any arguments given on the command line override
 it entirely rather than merging with it.
 
+Settings changed later from the web UI (the Settings panel) are saved to
+`settings.json` and restored automatically on every restart, taking
+priority over `station.env`/the command line from then on - so once you've
+set something in the UI, it's the one you don't need to keep re-setting.
+
 ## 6. Run it
 
 ```bash

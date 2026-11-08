@@ -5,7 +5,9 @@ ota_sim FM simulator; driven through the real HTTP and WebSocket API.
 """
 import asyncio
 import json
+import tempfile
 import unittest
+from pathlib import Path
 
 import httpx
 import uvicorn
@@ -71,10 +73,16 @@ class WebStationTests(unittest.IsolatedAsyncioTestCase):
         self.sim = await OTASimulator(FMLink('mic', base_cnr_db=25, latency_s=0.01, jitter_s=0.0, seed=9),
                                       log=lambda msg: None).start('127.0.0.1', 0)
         sim_host, sim_port = self.sim.address
+        self.tmpdir = tempfile.TemporaryDirectory()
         self.servers = {}
         for me, peer in (('K0MDT', 'W1AW'), ('W1AW', 'K0MDT')):
+            # Each test station gets its own settings.json (not the real
+            # one in the repo root a live station restores from, and not
+            # shared with the other test station either).
+            settings_file = Path(self.tmpdir.name) / f'settings-{me}.json'
             args = web_main.parse_args(['--station-id', me, '--dst', peer, '--sim-host', sim_host,
-                                        '--sim-port', str(sim_port), '--mode', '2', '--no-auto'])
+                                        '--sim-port', str(sim_port), '--mode', '2', '--no-auto',
+                                        '--settings-file', str(settings_file)])
             runner, app = web_main.build(args)
             runner.station._on_log = lambda msg: None
             self.servers[me] = (runner, *await start_server(app))
@@ -83,6 +91,7 @@ class WebStationTests(unittest.IsolatedAsyncioTestCase):
         for runner, server, task, _ in self.servers.values():
             await stop_server(server, task)
         self.sim.close()
+        self.tmpdir.cleanup()
 
     def url(self, who, path, ws=False):
         return f"{'ws' if ws else 'http'}://{self.servers[who][3]}{path}"

@@ -6,7 +6,8 @@ event stream, and the frontend's static files.
   POST  /api/send        {"text": "..."}  - a chat line (queued, sent in order)
   POST  /api/command     {"line": "/ping"} - a station command
   PATCH /api/settings    {"mode_id": 3, ...} - Station.update_settings();
-                         400 with the reason if any value is invalid
+                         400 with the reason if any value is invalid; saved
+                         to settings.json, restored on the next restart
   POST  /api/radio-test  {"kind": "carrier"|"tone", "seconds": 1} - key the
                          radio (Station.radio_test); 400 off a radio
   POST  /api/ptt-reset   force PTT released - for a radio stuck keyed after
@@ -21,6 +22,8 @@ from fastapi import FastAPI, HTTPException, WebSocket
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
+
+from . import settings_store
 
 HERE = Path(__file__).resolve().parent
 FRONTEND_DIST = HERE.parent / 'frontend' / 'dist'   # the built Svelte app (step 3)
@@ -86,9 +89,11 @@ def create_app(runner, lifespan=None):
     @app.patch('/api/settings')
     async def settings(changes: dict):
         try:
-            return await runner.station.update_settings(**changes)
+            result = await runner.station.update_settings(**changes)
         except ValueError as exc:
             raise HTTPException(400, str(exc))
+        settings_store.save(changes, runner.settings_path)
+        return result
 
     @app.post('/api/radio-test')
     async def radio_test(body: RadioTestBody):

@@ -27,6 +27,7 @@ import uvicorn  # noqa: E402
 from .app import create_app  # noqa: E402
 from .hub import EventHub  # noqa: E402
 from .runner import StationRunner  # noqa: E402
+from . import settings_store  # noqa: E402
 
 
 def build(args):
@@ -41,7 +42,7 @@ def build(args):
     if args.log_file:
         station.open_log_file(args.log_file)
     runner = StationRunner(station, hub, lambda: ota_station.connect_from_args(station, args),
-                           ota_station._handle_command)
+                           ota_station._handle_command, settings_path=args.settings_file)
 
     @contextlib.asynccontextmanager
     async def lifespan(app):
@@ -86,6 +87,9 @@ def parse_args(argv=None):
     p.add_argument('--max-tx-s', type=float, default=ota_station.DEFAULT_MAX_TX_S)
     p.add_argument('--lead-in-ms', type=float, default=audio_phy.DEFAULT_LEAD_IN_S * 1000)
     p.add_argument('--log-file', metavar='PATH', help="the station's per-burst log")
+    p.add_argument('--settings-file', metavar='PATH', default=settings_store.DEFAULT_PATH,
+                   help="where settings changed from the web UI are saved and restored "
+                        "(default: settings.json)")
     p.add_argument('--host', default='0.0.0.0',
                    help='address to listen on (default 0.0.0.0: the whole network; '
                         '127.0.0.1: this computer only)')
