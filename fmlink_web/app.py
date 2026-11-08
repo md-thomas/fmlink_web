@@ -9,6 +9,9 @@ event stream, and the frontend's static files.
                          400 with the reason if any value is invalid
   POST  /api/radio-test  {"kind": "carrier"|"tone", "seconds": 1} - key the
                          radio (Station.radio_test); 400 off a radio
+  POST  /api/ptt-reset   force PTT released - for a radio stuck keyed after
+                         its USB device dropped mid-transmission; 400 off a radio
+  POST  /api/log/clear   drop this session's log history (all pages)
   WS    /api/events      a snapshot first, then every event as it happens
 """
 import asyncio
@@ -94,6 +97,19 @@ def create_app(runner, lifespan=None):
         except ValueError as exc:
             raise HTTPException(400, str(exc))
         return {'queued': True}
+
+    @app.post('/api/ptt-reset')
+    async def ptt_reset():
+        try:
+            runner.station.ptt_reset()
+        except ValueError as exc:
+            raise HTTPException(400, str(exc))
+        return {'reset': True}
+
+    @app.post('/api/log/clear')
+    async def clear_log():
+        hub.clear_logs()
+        return {'cleared': True}
 
     @app.websocket('/api/events')
     async def events(websocket: WebSocket):

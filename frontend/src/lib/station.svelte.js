@@ -87,6 +87,9 @@ function handle(e) {
       station.logs.push({ time: e.time, text: e.text });
       if (station.logs.length > MAX_LOGS) station.logs.shift();
       break;
+    case 'logs_cleared':
+      station.logs = [];
+      break;
   }
 }
 
@@ -129,6 +132,16 @@ export function radioTest(kind, seconds) {
 /** Change settings while running, e.g. {mode_id: 3}. */
 export function updateSettings(changes) {
   return call('PATCH', '/api/settings', changes);
+}
+
+/** Force PTT released - for a radio stuck keyed. */
+export function pttReset() {
+  return call('POST', '/api/ptt-reset');
+}
+
+/** Drop this session's log history (for every open page). */
+export function clearLog() {
+  return call('POST', '/api/log/clear');
 }
 
 // Where each mode stops decoding reliably (dB SNR, measured - RADIO_SETUP.md).

@@ -66,6 +66,17 @@ class EventHub:
                           'bursts': list(self.bursts), 'logs': list(self.logs),
                           'constellations': list(self.constellations)})
 
+    def clear_logs(self):
+        """Drop this session's log history - a fresh start after a lot of
+        noise (e.g. repeated retry errors), not a change to the station
+        itself. Pages already open are told via a 'logs_cleared' event; a
+        page that connects later just gets an empty backlog."""
+        self.logs.clear()
+        for queue in list(self._subscribers):
+            if queue.full():
+                queue.get_nowait()
+            queue.put_nowait({'type': 'logs_cleared'})
+
     def subscribe(self):
         queue = asyncio.Queue(maxsize=self._queue_size)
         self._subscribers.add(queue)

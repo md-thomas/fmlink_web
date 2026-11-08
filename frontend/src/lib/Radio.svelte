@@ -2,7 +2,7 @@
   // The radio: which interface, the live receive level with its last 30 s,
   // and transmit tests - a silent carrier (does PTT key the radio?) and a
   // steady tone at the TX level (for the other station's level meter).
-  import { station, radioTest } from './station.svelte.js';
+  import { station, radioTest, pttReset } from './station.svelte.js';
   import Panel from './Panel.svelte';
   import LevelMeter from './LevelMeter.svelte';
   import LevelHistory from './LevelHistory.svelte';
@@ -11,6 +11,7 @@
   let seconds = $state(1);
   let confirm = $state(null);    // 'carrier' | 'tone' while asking
   let result = $state(null);
+  let resetResult = $state(null);
   const NAMES = { carrier: 'PTT test (silent carrier)', tone: 'test tone (1 kHz)' };
 
   async function run(kind) {
@@ -21,6 +22,16 @@
       result = { ok: true, text: `✓ ${NAMES[kind]} queued for ${seconds} s - watch the TX indicator` };
     } catch (err) {
       result = { ok: false, text: '✕ ' + err.message };
+    }
+  }
+
+  async function resetPtt() {
+    resetResult = null;
+    try {
+      await pttReset();
+      resetResult = { ok: true, text: '✓ PTT released' };
+    } catch (err) {
+      resetResult = { ok: false, text: '✕ ' + err.message };
     }
   }
 </script>
@@ -67,6 +78,13 @@
       </div>
     {/if}
     {#if result}<p class={result.ok ? 'good' : 'bad'}>{result.text}</p>{/if}
+
+    <h3>Stuck PTT</h3>
+    <div class="tests">
+      <button onclick={resetPtt} disabled={!station.online}>Release PTT</button>
+      <span class="muted">if the radio stays keyed (e.g. after its USB interface drops out mid-transmission)</span>
+    </div>
+    {#if resetResult}<p class={resetResult.ok ? 'good' : 'bad'}>{resetResult.text}</p>{/if}
   {/if}
 </div>
 {/snippet}

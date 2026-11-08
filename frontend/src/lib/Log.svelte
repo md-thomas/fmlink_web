@@ -1,5 +1,5 @@
 <script>
-  import { station } from './station.svelte.js';
+  import { station, clearLog } from './station.svelte.js';
   import Panel from './Panel.svelte';
   let filter = $state('');
   const time = (t) => new Date(t * 1000).toLocaleTimeString();
@@ -11,6 +11,7 @@
 <Panel id="log" title="Log" height="min(70vh, 640px)" fill>
   {#snippet actions()}
     <input bind:value={filter} placeholder="filter" aria-label="Filter the log" />
+    <button onclick={clearLog} title="Drop this session's log history">Clear</button>
   {/snippet}
   {#snippet children()}
     <pre>{#each shown as l}<span class="time">{time(l.time)}</span> {l.text}
