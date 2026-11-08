@@ -81,9 +81,13 @@
 
     <h3>Stuck PTT</h3>
     <div class="tests">
-      <button onclick={resetPtt} disabled={!station.online}>Release PTT</button>
+      <button onclick={resetPtt} disabled={!station.online || r.ptt_line === 'vox'}>Release PTT</button>
       <span class="muted">if the radio stays keyed (e.g. after its USB interface drops out mid-transmission)</span>
     </div>
+    {#if r.ptt_line === 'vox'}
+      <p class="muted">No PTT line to release on a VOX interface - it keys itself off audio energy, so
+        software can't force it to stop. Unplug the interface (or its audio cable) if it gets stuck keyed.</p>
+    {/if}
     {#if resetResult}<p class={resetResult.ok ? 'good' : 'bad'}>{resetResult.text}</p>{/if}
   {/if}
 </div>
