@@ -8,6 +8,11 @@
 [Unit]
 Description=FMlink station
 After=network.target sound.target
+# No burst limit: if the radio isn't plugged in yet (or drops out),
+# connect_from_args() exits immediately every time, and systemd's default
+# 5-tries-in-10s limit would otherwise mark this 'failed' for good rather
+# than keep waiting for the hardware to show up.
+StartLimitIntervalSec=0
 
 [Service]
 Type=simple
