@@ -71,7 +71,6 @@
       <span class="badge off">✕ page offline - reconnecting</span>
     {:else if station.transmitting}
       <span class="badge tx">● TX</span>
-      <button class="abort" onclick={abortTx} title="Stop the current transmission right away">Abort</button>
     {:else if station.receiving}
       <span class="badge rx">● RX</span>
     {:else if l && !l.connected}
@@ -79,6 +78,8 @@
     {:else}
       <span class="badge idle">○ idle</span>
     {/if}
+    <button class="abort" onclick={abortTx} disabled={!station.transmitting}
+            title="Stop the current transmission right away">Abort</button>
   </span>
   <button class="theme" onclick={cycleTheme} title="Cycle light/dark/auto">{THEME_LABEL[theme]}</button>
 </header>
