@@ -78,8 +78,8 @@
     {:else}
       <span class="badge idle">○ idle</span>
     {/if}
-    <button class="abort" onclick={abortTx} disabled={!station.transmitting}
-            title="Stop the current transmission right away">Abort</button>
+    <button class="abort" onclick={abortTx} disabled={!station.online}
+            title="Stop the current (or about-to-start) transmission right away">Abort</button>
   </span>
   <button class="theme" onclick={cycleTheme} title="Cycle light/dark/auto">{THEME_LABEL[theme]}</button>
 </header>
