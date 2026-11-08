@@ -9,7 +9,8 @@ troubleshooting - see fmlink's
 Once you've cloned this repo (step 2 still has to happen by hand - it's
 what gets you `install.sh`), it does the rest of steps 1-5 for you:
 system packages, the sibling repos, the venv, PTT permission and
-`station.env`. Safe to re-run, e.g. after a `git pull`:
+`station.env` - and offers to set up step 7's systemd service too. Safe
+to re-run, e.g. after a `git pull`:
 
 ```bash
 ./install.sh
@@ -95,10 +96,10 @@ browser on the network. `./run.sh --help` lists every option; see the
 
 ## 7. Run it as a systemd user service (optional)
 
-So it starts on boot/login and restarts itself if it ever crashes,
-instead of needing a terminal open running `./run.sh`. Needs step 5
-(`station.env`) done first - the service runs a bare `./run.sh`, with no
-arguments of its own:
+`install.sh` offers to do this step too. So it starts on boot/login and
+restarts itself if it ever crashes, instead of needing a terminal open
+running `./run.sh`. Needs step 5 (`station.env`) done first - the
+service runs a bare `./run.sh`, with no arguments of its own:
 
 ```bash
 mkdir -p ~/.config/systemd/user

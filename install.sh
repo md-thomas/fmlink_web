@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 # One-shot setup for a new FMlink station computer: system packages, the
-# sibling repos (fmlink, ota_sim), this repo's venv, PTT permission, and
-# station.env. See GettingStarted.md for what each step does and how to
-# do it by hand instead. Safe to re-run (e.g. after a git pull) - it
-# skips anything already done.
+# sibling repos (fmlink, ota_sim), this repo's venv, PTT permission,
+# station.env, and (optionally) a systemd user service. See
+# GettingStarted.md for what each step does and how to do it by hand
+# instead. Safe to re-run (e.g. after a git pull) - it skips anything
+# already done.
 #
 # Verified 2026-11-07 re-run on two already-set-up stations (K0MDT-1,
 # K0MDT-2/hampi): every step correctly detected its prior work and
@@ -80,10 +81,35 @@ else
 fi
 
 echo
+echo "== 6. systemd user service (optional) =="
+SERVICE_FILE="$HOME/.config/systemd/user/fmlink-station.service"
+SERVICE_INSTALLED=0
+if [ -f "$SERVICE_FILE" ]; then
+    echo "already installed: $SERVICE_FILE"
+    SERVICE_INSTALLED=1
+elif [ -t 0 ]; then
+    read -rp "Start this station on boot/login and restart it if it crashes (systemd --user)? [Y/n] " ANSWER
+    if [[ ! "$ANSWER" =~ ^[Nn] ]]; then
+        mkdir -p "$HOME/.config/systemd/user"
+        sed "s#%INSTALL_DIR%#$SCRIPT_DIR#" systemd/fmlink-station.service.example > "$SERVICE_FILE"
+        systemctl --user daemon-reload
+        systemctl --user enable --now fmlink-station.service
+        loginctl enable-linger "$USER" 2>/dev/null \
+            || echo "loginctl enable-linger failed - the service needs you logged in until this is run (as root, or check polkit)"
+        echo "Installed, enabled and started: systemctl --user status fmlink-station"
+        SERVICE_INSTALLED=1
+    fi
+else
+    echo "Not an interactive shell - skipped. See GettingStarted.md's systemd step to set it up."
+fi
+
+echo
 echo "================================================================"
 echo "Setup done."
 [ "$NEEDS_RELOGIN" = 1 ] && echo "- Log out and back in for the dialout group (PTT) to take effect."
 echo "- Check the radio interface is found: $PARENT_DIR/fmlink/radio_stations.py"
-echo "- Review station.env, then run the station: ./run.sh"
-echo "- Optional: a systemd service that starts it on boot/login and"
-echo "  restarts it on failure - see GettingStarted.md's last step."
+if [ "$SERVICE_INSTALLED" = 1 ]; then
+    echo "- Review station.env, then: systemctl --user restart fmlink-station"
+else
+    echo "- Review station.env, then run the station: ./run.sh"
+fi
