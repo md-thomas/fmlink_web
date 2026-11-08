@@ -1,5 +1,5 @@
 <script>
-  import { station } from './lib/station.svelte.js';
+  import { station, abortTx } from './lib/station.svelte.js';
   import Chat from './lib/Chat.svelte';
   import Link from './lib/Link.svelte';
   import Log from './lib/Log.svelte';
@@ -71,6 +71,7 @@
       <span class="badge off">✕ page offline - reconnecting</span>
     {:else if station.transmitting}
       <span class="badge tx">● TX</span>
+      <button class="abort" onclick={abortTx} title="Stop the current transmission right away">Abort</button>
     {:else if station.receiving}
       <span class="badge rx">● RX</span>
     {:else if l && !l.connected}
@@ -119,6 +120,7 @@
   .rx { color: var(--good-text); }
   .idle { color: var(--muted); }
   .off { color: var(--critical); }
+  .abort { margin-left: 8px; font-size: 0.8rem; padding: 2px 10px; color: var(--critical); border-color: var(--critical); }
   .theme { font-size: 0.8rem; padding: 4px 10px; color: var(--ink-2); }
   .top { padding: 10px 16px 0; }
   nav { display: flex; gap: 6px; padding: 8px 16px 0; }

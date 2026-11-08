@@ -10,6 +10,8 @@ event stream, and the frontend's static files.
                          to settings.json, restored on the next restart
   POST  /api/radio-test  {"kind": "carrier"|"tone", "seconds": 1} - key the
                          radio (Station.radio_test); 400 off a radio
+  POST  /api/abort-tx    stop the current transmission right away, drop
+                         anything queued behind it; 400 off a radio
   POST  /api/ptt-reset   force PTT released - for a radio stuck keyed after
                          its USB device dropped mid-transmission; 400 off a radio
   POST  /api/log/clear   drop this session's log history (all pages)
@@ -102,6 +104,14 @@ def create_app(runner, lifespan=None):
         except ValueError as exc:
             raise HTTPException(400, str(exc))
         return {'queued': True}
+
+    @app.post('/api/abort-tx')
+    async def abort_tx():
+        try:
+            aborted = runner.station.abort_tx()
+        except ValueError as exc:
+            raise HTTPException(400, str(exc))
+        return {'aborted': aborted}
 
     @app.post('/api/ptt-reset')
     async def ptt_reset():

@@ -134,6 +134,11 @@ export function updateSettings(changes) {
   return call('PATCH', '/api/settings', changes);
 }
 
+/** Stop the current transmission right away, drop anything queued behind it. */
+export function abortTx() {
+  return call('POST', '/api/abort-tx');
+}
+
 /** Force PTT released - for a radio stuck keyed. */
 export function pttReset() {
   return call('POST', '/api/ptt-reset');
