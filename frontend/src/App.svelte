@@ -10,6 +10,20 @@
 
   let tab = $state('chat');   // narrow screens show one panel at a time
 
+  // Theme: 'system' follows the OS/browser (the default), or an explicit
+  // override - cycles system -> light -> dark -> system.
+  let theme = $state(load('theme', 'system'));
+  const THEME_LABEL = { system: 'Theme: Auto', light: 'Theme: Light', dark: 'Theme: Dark' };
+  const THEME_NEXT = { system: 'light', light: 'dark', dark: 'system' };
+  $effect(() => {
+    if (theme === 'system') document.documentElement.removeAttribute('data-theme');
+    else document.documentElement.dataset.theme = theme;
+  });
+  function cycleTheme() {
+    theme = THEME_NEXT[theme];
+    save('theme', theme === 'system' ? null : theme);
+  }
+
   // Wide screens: the share of the width the left column (chat, log) gets;
   // drag the divider to change it, double-click to reset.
   let split = $state(load('split', 0.5));
@@ -65,6 +79,7 @@
       <span class="badge idle">○ idle</span>
     {/if}
   </span>
+  <button class="theme" onclick={cycleTheme} title="Cycle light/dark/auto">{THEME_LABEL[theme]}</button>
 </header>
 
 <div class="top"><Callsigns /></div>
@@ -104,6 +119,7 @@
   .rx { color: var(--good-text); }
   .idle { color: var(--muted); }
   .off { color: var(--critical); }
+  .theme { font-size: 0.8rem; padding: 4px 10px; color: var(--ink-2); }
   .top { padding: 10px 16px 0; }
   nav { display: flex; gap: 6px; padding: 8px 16px 0; }
   nav button.active { border-color: var(--accent); color: var(--accent); font-weight: 600; }
