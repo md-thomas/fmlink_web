@@ -1,10 +1,26 @@
 <script>
-  import { station, send } from './station.svelte.js';
+  // One conversation with one destination callsign. dst is bindable - its
+  // owner (App.svelte) keeps a list of these, one per open chat, so there
+  // can be several going with different peers. The radio itself can only
+  // talk to one at a time though: sending from a panel whose dst isn't
+  // the station's current one switches it first (PATCH /api/settings),
+  // which costs a fresh mode negotiation, same as changing it used to in
+  // the old standalone Callsigns panel.
+  import { station, send, updateSettings } from './station.svelte.js';
   import Panel from './Panel.svelte';
+
+  let { dst = $bindable(), onClose } = $props();
 
   let text = $state('');
   let busy = $state(false);
   let list;
+
+  let dstDraft = $state(dst);
+  let editingDst = $state(false);
+
+  const messages = $derived(
+    station.messages.filter((m) => (m.kind === 'tx' ? m.dst : m.src) === dst));
+  const isCurrent = $derived(station.link && station.link.dst_id === dst);
 
   function status(m) {
     if (m.failed) return { text: '✕ not delivered', cls: 'bad' };
@@ -15,12 +31,25 @@
   }
   const time = (t) => new Date(t * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
+  function toggleEditDst() {
+    dstDraft = dst;
+    editingDst = !editingDst;
+  }
+
+  function applyDst(event) {
+    event.preventDefault();
+    const next = dstDraft.trim().toUpperCase();
+    if (next) dst = next;
+    editingDst = false;
+  }
+
   async function submit(event) {
     event.preventDefault();
     const line = text.trim();
     if (!line || busy) return;
     busy = true;
     try {
+      if (!isCurrent) await updateSettings({ dst_id: dst });
       await send(line);
       text = '';
     } catch {
@@ -31,16 +60,27 @@
   }
 
   $effect(() => {
-    station.messages.length;   // scroll to the newest when one arrives
+    messages.length;   // scroll to the newest when one arrives
     if (list) queueMicrotask(() => (list.scrollTop = list.scrollHeight));
   });
 </script>
 
-<Panel id="chat" title={`Chat${station.link ? ` with ${station.link.dst_id}` : ''}`}
-       height="min(70vh, 640px)" fill>
+<Panel id={`chat-${dst}`} title={`Chat with ${dst}`} height="min(70vh, 640px)" fill>
+{#snippet actions()}
+  <button class="link" onclick={toggleEditDst}
+          title="Change this chat's destination callsign">✎</button>
+  <button class="link" onclick={onClose} title="Close this chat">✕</button>
+{/snippet}
 {#snippet children()}
+  {#if editingDst}
+    <form class="dst" onsubmit={applyDst}>
+      <input bind:value={dstDraft} autocomplete="off" spellcheck="false" maxlength="9" />
+      <button class="primary">Apply</button>
+      <button type="button" onclick={() => (editingDst = false)}>Cancel</button>
+    </form>
+  {/if}
   <div class="list" bind:this={list}>
-    {#each station.messages as m}
+    {#each messages as m}
       <div class="msg" class:me={m.kind === 'tx'}>
         <div class="bubble">{m.text}</div>
         <div class="meta muted">
@@ -54,10 +94,14 @@
         </div>
       </div>
     {:else}
-      <p class="muted">No messages yet. Type one below, or a /command such as /ping or /help.</p>
+      <p class="muted">No messages yet with {dst}. Type one below, or a /command such as /ping or /help.</p>
     {/each}
   </div>
   {#if station.error}<p class="error">✕ {station.error}</p>{/if}
+  {#if !isCurrent}
+    <p class="muted note">Sending here switches the station to {dst} first - it takes a few
+      seconds on air to renegotiate.</p>
+  {/if}
   <form onsubmit={submit}>
     <input bind:value={text} placeholder="Message, or /command" autocomplete="off"
            disabled={!station.online} />
@@ -79,6 +123,11 @@
   .good { color: var(--good-text); }
   .bad, .error { color: var(--critical); }
   .error { margin: 6px 0 0; font-size: 0.9rem; }
+  .note { font-size: 0.8rem; margin: 6px 0 0; }
   form { display: flex; gap: 8px; margin-top: 8px; }
+  form.dst { margin: 0 0 8px; }
   input { flex: 1; min-width: 0; }
+  form.dst input { text-transform: uppercase; flex: 0 1 140px; }
+  .link { border: 0; background: none; padding: 2px 4px; color: var(--ink-2); }
+  .link:hover { color: var(--ink); }
 </style>
