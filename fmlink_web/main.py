@@ -30,8 +30,11 @@ from .runner import StationRunner  # noqa: E402
 from . import settings_store  # noqa: E402
 
 
-def build(args):
-    """(runner, app) for these arguments; nothing is connected yet."""
+def build(args, restart_argv=None):
+    """(runner, app) for these arguments; nothing is connected yet.
+    restart_argv: the CLI args to re-launch with (POST /api/restart) -
+    None (e.g. from a test harness that never calls it) disables that
+    endpoint rather than guessing at what args to replay."""
     hub = EventHub()
     station = ota_station.Station(
         station_id=args.station_id, dst_id=args.dst, mode_id=args.mode,
@@ -60,7 +63,7 @@ def build(args):
         finally:
             await runner.stop()
 
-    return runner, create_app(runner, lifespan=lifespan)
+    return runner, create_app(runner, lifespan=lifespan, restart_argv=restart_argv)
 
 
 def parse_args(argv=None):
@@ -107,8 +110,9 @@ def parse_args(argv=None):
 
 
 def main(argv=None):
+    restart_argv = sys.argv[1:] if argv is None else argv
     args = parse_args(argv)
-    runner, app = build(args)
+    runner, app = build(args, restart_argv)
     print(f"[web] FMlink station {args.station_id} - open http://{args.host}:{args.port} "
           f"(0.0.0.0 = any address of this computer)", file=sys.stderr)
     server = uvicorn.Server(uvicorn.Config(app, host=args.host, port=args.port, log_level='warning',

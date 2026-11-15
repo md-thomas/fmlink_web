@@ -16,9 +16,14 @@ event stream, and the frontend's static files.
   POST  /api/ptt-reset   force PTT released - for a radio stuck keyed after
                          its USB device dropped mid-transmission; 400 off a radio
   POST  /api/log/clear   drop this session's log history (all pages)
+  POST  /api/restart     restart the whole station process in place (picks
+                         up a git pull without a terminal); 400 if the
+                         process wasn't started in a way that supports it
   WS    /api/events      a snapshot first, then every event as it happens
 """
 import asyncio
+import os
+import sys
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, WebSocket
@@ -59,7 +64,7 @@ def options():
     }
 
 
-def create_app(runner, lifespan=None):
+def create_app(runner, lifespan=None, restart_argv=None):
     app = FastAPI(title='FMlink station', lifespan=lifespan)
     hub = runner.hub
 
@@ -122,6 +127,23 @@ def create_app(runner, lifespan=None):
     async def clear_log():
         hub.clear_logs()
         return {'cleared': True}
+
+    @app.post('/api/restart')
+    async def restart():
+        if restart_argv is None:
+            raise HTTPException(400, 'this process was not started in a way that supports restarting itself')
+
+        async def do_restart():
+            await asyncio.sleep(0.2)   # let this response actually reach the client first
+            try:
+                runner.station.abort_tx()   # stop anything in flight right away, don't wait it out
+            except Exception:
+                pass
+            await runner.stop()             # closes the radio cleanly (releases the audio device)
+            os.execv(sys.executable, [sys.executable, '-m', 'fmlink_web.main'] + restart_argv)
+
+        asyncio.create_task(do_restart())
+        return {'restarting': True}
 
     @app.websocket('/api/events')
     async def events(websocket: WebSocket):

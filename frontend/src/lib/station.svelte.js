@@ -149,5 +149,10 @@ export function clearLog() {
   return call('POST', '/api/log/clear');
 }
 
+/** Restart the whole station process in place (e.g. to pick up a git pull). */
+export function restartStation() {
+  return call('POST', '/api/restart');
+}
+
 // Where each mode stops decoding reliably (dB SNR, measured - RADIO_SETUP.md).
 export const MODE_LIMIT_DB = { 0: -1, 1: 4.5, 2: 7, 3: 8 };

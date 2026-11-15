@@ -2,7 +2,7 @@
   // Station settings, changed while it runs (PATCH /api/settings). The
   // fields follow the station until edited; Apply sends only what changed.
   // Mode, FEC and batching changes are passed to the peer by the station.
-  import { station, updateSettings } from './station.svelte.js';
+  import { station, updateSettings, restartStation } from './station.svelte.js';
   import Panel from './Panel.svelte';
 
   let options = $state(null);
@@ -47,6 +47,20 @@
   let edited = $state({});
   let busy = $state(false);
   let result = $state(null);
+
+  let confirmRestart = $state(false);
+  let restartResult = $state(null);
+
+  async function restart() {
+    confirmRestart = false;
+    restartResult = null;
+    try {
+      await restartStation();
+      restartResult = { ok: true, text: '✓ restarting - the page will reconnect once it\'s back up' };
+    } catch (err) {
+      restartResult = { ok: false, text: '✕ ' + err.message };
+    }
+  }
 
   const l = $derived(station.link);
   const radio = $derived(l && l.tx_level !== null);
@@ -180,6 +194,22 @@
     </div>
     <p class="muted note">Mode, FEC and batching changes are sent to {l.dst_id} too, so both
       stations switch together (it takes a few seconds on air).</p>
+
+    <h3>Station process</h3>
+    <div class="bar">
+      <button onclick={() => (confirmRestart = true)} disabled={!station.online}>Restart station</button>
+      <span class="muted">e.g. to pick up a git pull - drops every page's connection for a few
+        seconds (they reconnect on their own)</span>
+    </div>
+    {#if confirmRestart}
+      <div class="confirm" role="alertdialog" aria-label="Confirm restart">
+        <span>Restart the whole station process now? Anyone on the network using it will be
+          disconnected for a few seconds.</span>
+        <button class="primary" onclick={restart}>Restart</button>
+        <button onclick={() => (confirmRestart = false)}>Cancel</button>
+      </div>
+    {/if}
+    {#if restartResult}<p class={restartResult.ok ? 'good' : 'bad'}>{restartResult.text}</p>{/if}
   {/if}
 {/snippet}
 </Panel>
@@ -198,4 +228,7 @@
   .good { color: var(--good-text); font-size: 0.9rem; }
   .bad { color: var(--critical); font-size: 0.9rem; }
   .note { font-size: 0.8rem; margin: 6px 0 0; }
+  h3 { font-size: 0.85rem; color: var(--ink-2); margin: 16px 0 0; font-weight: 600; }
+  .confirm { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 8px; padding: 8px;
+             border: 1px solid var(--critical); border-radius: 6px; }
 </style>
