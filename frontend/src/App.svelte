@@ -57,18 +57,18 @@
     conversations.splice(i, 1);
   }
 
-  // Theme: 'system' follows the OS/browser (the default), or an explicit
-  // override - cycles system -> light -> dark -> system.
-  let theme = $state(load('theme', 'system'));
+  // Theme: dark by default, 'system' follows the OS/browser instead, or an
+  // explicit override - cycles dark -> light -> system -> dark.
+  let theme = $state(load('theme', 'dark'));
   const THEME_LABEL = { system: 'Theme: Auto', light: 'Theme: Light', dark: 'Theme: Dark' };
-  const THEME_NEXT = { system: 'light', light: 'dark', dark: 'system' };
+  const THEME_NEXT = { dark: 'light', light: 'system', system: 'dark' };
   $effect(() => {
     if (theme === 'system') document.documentElement.removeAttribute('data-theme');
     else document.documentElement.dataset.theme = theme;
   });
   function cycleTheme() {
     theme = THEME_NEXT[theme];
-    save('theme', theme === 'system' ? null : theme);
+    save('theme', theme);
   }
 
   // Wide screens: the share of the width the left column (chat, log) gets;
