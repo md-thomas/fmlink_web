@@ -25,15 +25,24 @@ class StationRunner:
         self.settings_path = settings_path
 
     async def start(self):
-        self.link_note = await self._connect()
-        self.station._log(f"[web] station {self.station.station_id} connected, {self.link_note}")
-        saved = settings_store.load(self.settings_path)
-        if saved:
-            try:
-                await self.station.update_settings(**saved)
-                self.station._log(f"[web] restored saved settings: {', '.join(saved)}")
-            except (ValueError, TypeError) as exc:
-                self.station._log(f"[web] could not restore saved settings: {exc!r}")
+        """Serves the UI even if the radio/simulator isn't reachable: a
+        failed connect (e.g. no audio device) is logged instead of raised,
+        so the page comes up showing 'not connected' - fix the radio and
+        use the web UI's own Restart button, no need for a terminal."""
+        try:
+            self.link_note = await self._connect()
+        except SystemExit as exc:
+            self.link_note = None
+            self.station._log(f"[web] not connected: {exc.code}")
+        else:
+            self.station._log(f"[web] station {self.station.station_id} connected, {self.link_note}")
+            saved = settings_store.load(self.settings_path)
+            if saved:
+                try:
+                    await self.station.update_settings(**saved)
+                    self.station._log(f"[web] restored saved settings: {', '.join(saved)}")
+                except (ValueError, TypeError) as exc:
+                    self.station._log(f"[web] could not restore saved settings: {exc!r}")
         self.hub.publish({'type': 'link', **self.station.link_state()})
         self._worker = asyncio.create_task(self._send_loop())
 

@@ -12,7 +12,6 @@ open the page and transmit; --host 127.0.0.1 keeps it to this computer.
 import argparse
 import asyncio
 import contextlib
-import os
 import sys
 
 from . import paths
@@ -49,15 +48,11 @@ def build(args, restart_argv=None):
 
     @contextlib.asynccontextmanager
     async def lifespan(app):
-        try:
-            await runner.start()
-        except SystemExit as exc:
-            # connect_from_args() reports a bad radio/sim setup (e.g. no
-            # audio device found) this way; let it through as a clean
-            # one-line error instead of the traceback Starlette's own
-            # lifespan handling would otherwise log it as.
-            print(exc.code, file=sys.stderr)
-            os._exit(1)
+        # runner.start() itself absorbs a bad radio/sim setup (e.g. no audio
+        # device found) and serves the UI anyway, showing 'not connected' -
+        # see its docstring. Nothing here should raise SystemExit anymore;
+        # if it somehow does, fail loudly rather than serve a half-started app.
+        await runner.start()
         try:
             yield
         finally:
