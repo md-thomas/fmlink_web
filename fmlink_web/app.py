@@ -16,6 +16,8 @@ event stream, and the frontend's static files.
   POST  /api/ptt-reset   force PTT released - for a radio stuck keyed after
                          its USB device dropped mid-transmission; 400 off a radio
   POST  /api/log/clear   drop this session's log history (all pages)
+  POST  /api/chat/clear  {"dst": "KD1HA-1"} - drop this session's history
+                         with that callsign (all pages, other chats kept)
   POST  /api/restart     restart the whole station process in place (picks
                          up a git pull without a terminal); 400 if the
                          process wasn't started in a way that supports it
@@ -49,6 +51,10 @@ class CommandBody(BaseModel):
 class RadioTestBody(BaseModel):
     kind: str = 'carrier'
     seconds: float = 1.0
+
+
+class ChatClearBody(BaseModel):
+    dst: str
 
 
 def options():
@@ -126,6 +132,11 @@ def create_app(runner, lifespan=None, restart_argv=None):
     @app.post('/api/log/clear')
     async def clear_log():
         hub.clear_logs()
+        return {'cleared': True}
+
+    @app.post('/api/chat/clear')
+    async def clear_chat(body: ChatClearBody):
+        hub.clear_messages(body.dst)
         return {'cleared': True}
 
     @app.post('/api/restart')

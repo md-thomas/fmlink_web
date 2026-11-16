@@ -77,6 +77,22 @@ class EventHub:
                 queue.get_nowait()
             queue.put_nowait({'type': 'logs_cleared'})
 
+    def clear_messages(self, dst):
+        """Drop this session's history of the conversation with dst (sent
+        to it or received from it), same idea as clear_logs() but scoped to
+        one Chat panel - the other open conversations are untouched."""
+        sent_ids = {e['id'] for e in self.messages if e['type'] == 'message_tx' and e['dst'] == dst}
+        self.messages = deque(
+            (e for e in self.messages
+             if not (e['type'] == 'message_tx' and e['dst'] == dst)
+             and not (e['type'] == 'message_rx' and e['src'] == dst)
+             and not (e['type'] == 'delivery' and e['id'] in sent_ids)),
+            maxlen=self.messages.maxlen)
+        for queue in list(self._subscribers):
+            if queue.full():
+                queue.get_nowait()
+            queue.put_nowait({'type': 'messages_cleared', 'dst': dst})
+
     def subscribe(self):
         queue = asyncio.Queue(maxsize=self._queue_size)
         self._subscribers.add(queue)

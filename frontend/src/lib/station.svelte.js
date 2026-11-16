@@ -90,6 +90,10 @@ function handle(e) {
     case 'logs_cleared':
       station.logs = [];
       break;
+    case 'messages_cleared':
+      station.messages = station.messages.filter(
+        (m) => (m.kind === 'tx' ? m.dst : m.src) !== e.dst);
+      break;
   }
 }
 
@@ -147,6 +151,11 @@ export function pttReset() {
 /** Drop this session's log history (for every open page). */
 export function clearLog() {
   return call('POST', '/api/log/clear');
+}
+
+/** Drop this session's history with dst (for every open page); other open chats are unaffected. */
+export function clearChat(dst) {
+  return call('POST', '/api/chat/clear', { dst });
 }
 
 /** Restart the whole station process in place (e.g. to pick up a git pull). */

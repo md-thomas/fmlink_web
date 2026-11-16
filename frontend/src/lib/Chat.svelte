@@ -6,7 +6,7 @@
   // the station's current one switches it first (PATCH /api/settings),
   // which costs a fresh mode negotiation, same as changing it used to in
   // the old standalone Callsigns panel.
-  import { station, send, updateSettings } from './station.svelte.js';
+  import { station, send, updateSettings, clearChat } from './station.svelte.js';
   import Panel from './Panel.svelte';
 
   let { dst = $bindable(), onClose } = $props();
@@ -69,6 +69,8 @@
 {#snippet actions()}
   <button class="link" onclick={toggleEditDst}
           title="Change this chat's destination callsign">✎</button>
+  <button class="link" onclick={() => clearChat(dst)}
+          title="Drop this conversation's history (all pages, other chats kept)" disabled={!messages.length}>Clear</button>
   <button class="link" onclick={onClose} title="Close this chat">✕</button>
 {/snippet}
 {#snippet children()}
