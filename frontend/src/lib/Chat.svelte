@@ -21,6 +21,7 @@
   const messages = $derived(
     station.messages.filter((m) => (m.kind === 'tx' ? m.dst : m.src) === dst));
   const isCurrent = $derived(station.link && station.link.dst_id === dst);
+  const connected = $derived(station.link && station.link.connected);
 
   function status(m) {
     if (m.failed) return { text: '✕ not delivered', cls: 'bad' };
@@ -100,14 +101,17 @@
     {/each}
   </div>
   {#if station.error}<p class="error">✕ {station.error}</p>{/if}
-  {#if !isCurrent}
+  {#if station.link && !connected}
+    <p class="muted note">✕ Not connected to a radio or simulator - see the Radio tab.
+      Sending here won't go anywhere until that's fixed.</p>
+  {:else if !isCurrent}
     <p class="muted note">Sending here switches the station to {dst} first - it takes a few
       seconds on air to renegotiate.</p>
   {/if}
   <form onsubmit={submit}>
     <input bind:value={text} placeholder="Message, or /command" autocomplete="off"
            disabled={!station.online} />
-    <button class="primary" disabled={!station.online || busy || !text.trim()}>Send</button>
+    <button class="primary" disabled={!station.online || !connected || busy || !text.trim()}>Send</button>
   </form>
 {/snippet}
 </Panel>
