@@ -41,9 +41,6 @@
 <div class="radio" class:grow={!!size.height}>
   {#if !station.link}
     <p class="muted">Waiting for the station…</p>
-  {:else if !station.link.connected}
-    <p class="muted">✕ Not connected - see the Log tab for why, fix it, then Restart the
-      station from the Settings tab.</p>
   {:else if !r}
     <p class="muted">Not on a radio - this station is using the simulator.</p>
   {:else}
